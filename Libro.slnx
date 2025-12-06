@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Libro.BLL/Libro.BLL.csproj" />
+  <Project Path="Libro.DAL/Libro.DAL.csproj" />
+  <Project Path="Libro.PL/Libro.PL.csproj" />
+</Solution>
