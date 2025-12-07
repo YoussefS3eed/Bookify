@@ -1,4 +1,6 @@
-﻿namespace Libro.BLL.ModelVM.ResponseResult
+﻿using System.Net;
+
+namespace Libro.BLL.ModelVM.ResponseResult
 {
-    public record Response<T>(T? Result, string? ErrorMessage, bool HasErrorMessage);
+    public record Response<T>(T? Result, string? ErrorMessage, bool HasErrorMessage, HttpStatusCode StatusCode = HttpStatusCode.OK);
 }

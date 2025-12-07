@@ -1,6 +1,15 @@
-﻿global using Microsoft.Extensions.DependencyInjection;
-global using System.ComponentModel.DataAnnotations;
-
+﻿global using AutoMapper;
+global using Libro.BLL.Mapper;
+global using Libro.BLL.ModelVM.Category;
+global using Libro.BLL.ModelVM.ResponseResult;
+global using Libro.BLL.ModelVM.Validation;
+global using Libro.BLL.ModelVM.ViewModel;
 global using Libro.BLL.Service.Abstraction;
 global using Libro.BLL.Service.Implementation;
-global using Libro.BLL.ModelVM.ResponseResult;
+global using Libro.DAL.Entities;
+global using Libro.DAL.Repo.Abstraction;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using System.ComponentModel.DataAnnotations;
+global using Libro.BLL.Common.Abstraction;

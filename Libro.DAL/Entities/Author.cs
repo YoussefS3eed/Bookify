@@ -1,25 +1,25 @@
 ﻿namespace Libro.DAL.Entities
 {
-    public class Category : BaseEntity
+    public class Author : BaseEntity
     {
-        protected Category()
+        protected Author()
         {
-            CreatedBy = "Admin Category";
+            CreatedBy = "Admin Author";
         }
-        public Category(string name, string createdBy)
+        public Author(string name, string createdBy)
         {
             Name = name;
             CreatedBy = createdBy;
         }
         public int Id { get; private set; }
         public string Name { get; private set; } = null!;
-        public bool Update(string name, string deletedBy)
+        public bool Update(string name, string createdBy)
         {
-            if (!string.IsNullOrEmpty(deletedBy) && Name != name)
+            if (!string.IsNullOrEmpty(createdBy) && Name != name)
             {
                 Name = name;
                 UpdatedOn = DateTime.UtcNow;
-                UpdatedBy = deletedBy;
+                UpdatedBy = createdBy;
                 return true;
             }
             return false;

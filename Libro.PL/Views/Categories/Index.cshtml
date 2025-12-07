@@ -1,5 +1,5 @@
 ﻿@using Libro.BLL.ModelVM.ResponseResult
-@model Response<IEnumerable<CategoryViewModel>>
+@model IEnumerable<CategoryViewModel>
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
 @{
@@ -103,7 +103,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var category in Model.Result!)
+                    @foreach (var category in Model)
                     {
                         <partial name="_CategoryRow" model="@category" />
                     }

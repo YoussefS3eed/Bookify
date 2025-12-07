@@ -1,14 +1,10 @@
-﻿using Libro.BLL.ModelVM.Category;
-using Libro.BLL.ModelVM.ViewModel;
-
-namespace Libro.BLL.Service.Abstraction
+﻿namespace Libro.BLL.Service.Abstraction
 {
     public interface ICategoryService
     {
         Task<Response<CategoryViewModel>> CreateCategoryAsync(CategoryFormVM model);
         Task<Response<CategoryViewModel>> UpdateCategoryAsync(CategoryFormVM model);
         Task<Response<CategoryViewModel>> ToggleStatusCategoryAsync(int categoryId);
-        Task<bool> NameExistsAsync(string name);
         Task<Response<CategoryFormVM>> GetCategoryByIdAsync(int categoryId);
         Task<Response<IEnumerable<CategoryViewModel>>> GetAllCategoriesAsync();
         Task<Response<IEnumerable<CategoryViewModel>>> GetAllNotActiveCategoriesAsync();

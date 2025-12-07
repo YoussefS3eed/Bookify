@@ -15,16 +15,27 @@ function showSuccessMessage(message = 'Saved successfully!') {
     });
 }
 
-function showErrorMessage(message = 'Something went wrong!') {
+function showErrorMessage(xhr) {
+    var message = xhr.responseText || 'Something went wrong!';
     Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: message.responseText === undefined ? message : message.responseText,
+        text: message,
         customClass: {
             confirmButton: "btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary"
         }
     });
 }
+
+//function showErrorMessage(xhr) {
+//    var message = xhr.responseJSON?.message || 'Something went wrong!';
+//    Swal.fire({
+//        icon: 'error',
+//        title: 'Oops...',
+//        html: message,
+//        customClass: { confirmButton: "btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary" }
+//    });
+//}
 
 // ======== Handle Modal ========
 function onModalBegin() {
@@ -148,10 +159,10 @@ var KTDatatables = function () {
 $(document).ready(function () {
 
     // SweetAlert::Show success 
-    var message = $('#Message').text().trim();
-    if (message !== '') {
-        showSuccessMessage(message);
-    }
+    //var message = $('#Message').text().trim();
+    //if (message !== '') {
+    //    showSuccessMessage(message);
+    //}
 
     //DataTables
     KTUtil.onDOMContentLoaded(function () {
@@ -188,7 +199,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                showErrorMessage();
+                showErrorMessage('Failed to load form.');
             }
         });
 
@@ -203,14 +214,8 @@ $(document).ready(function () {
         bootbox.confirm({
             message: "Are you sure that you need to toggle this item status?",
             buttons: {
-                confirm: {
-                    label: 'Yes',
-                    className: 'btn-danger'
-                },
-                cancel: {
-                    label: 'No',
-                    className: 'btn-secondary'
-                }
+                confirm: { label: 'Yes', className: 'btn-danger' },
+                cancel: { label: 'No', className: 'btn-secondary' }
             },
             callback: function (result) {
                 if (result) {
@@ -230,7 +235,7 @@ $(document).ready(function () {
                             showSuccessMessage();
                         },
                         error: function () {
-                            showErrorMessage();
+                            showErrorMessage('Failed to toggle status.');
                         }
                     });
                 }

@@ -14,6 +14,7 @@ namespace Libro.DAL.Database
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
+        public DbSet<Author> Authors { get; set; }
         public DbSet<Category> Categories { get; set; }
     }
 }

@@ -1,9 +1,4 @@
-﻿using Libro.BLL.ModelVM.Category;
-using Libro.BLL.Service.Abstraction;
-using Libro.PL.Filters;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Libro.PL.Controllers
+﻿namespace Libro.PL.Controllers
 {
     public class CategoriesController : Controller
     {
@@ -16,9 +11,13 @@ namespace Libro.PL.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // TODO: use viewModel 
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return View(categories);
+            if (categories.HasErrorMessage)
+            {
+                return StatusCode((int)categories.StatusCode, categories.ErrorMessage);
+            }
+
+            return View(categories.Result);
         }
 
         [HttpGet]
@@ -34,9 +33,15 @@ namespace Libro.PL.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid data received");
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
             }
+
             var category = await _categoryService.CreateCategoryAsync(model);
+            if (category.HasErrorMessage)
+            {
+                return StatusCode((int)category.StatusCode, category.ErrorMessage);
+            }
+
             return PartialView("_CategoryRow", category?.Result);
         }
 
@@ -44,11 +49,11 @@ namespace Libro.PL.Controllers
         [AjaxOnly]
         public async Task<IActionResult> Edit(int id)
         {
-
             var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category.Result is null)
-                return BadRequest(category.ErrorMessage);
-
+            if (category.HasErrorMessage)
+            {
+                return StatusCode((int)category.StatusCode, category.ErrorMessage);
+            }
 
             return PartialView("_Form", category.Result);
         }
@@ -58,13 +63,14 @@ namespace Libro.PL.Controllers
         public async Task<IActionResult> Edit(CategoryFormVM model)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid data received");
+            {
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
+            }
 
-            
             var category = await _categoryService.UpdateCategoryAsync(model);
             if (category.HasErrorMessage)
             {
-                return BadRequest(category.ErrorMessage);
+                return StatusCode((int)category.StatusCode, category.ErrorMessage);
             }
 
             return PartialView("_CategoryRow", category.Result);
@@ -75,17 +81,12 @@ namespace Libro.PL.Controllers
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var category = await _categoryService.ToggleStatusCategoryAsync(id);
-
-            
             if (category.HasErrorMessage)
-                return BadRequest(category.ErrorMessage);
-
+            {
+                return StatusCode((int)category.StatusCode, category.ErrorMessage);
+            }
 
             return Ok(category.Result!.UpdatedOn?.ToString());
         }
-        //public IActionResult AllowItem(CategoryFormVM model)
-        //{
-        //    var isExist = 
-        //}
     }
 }

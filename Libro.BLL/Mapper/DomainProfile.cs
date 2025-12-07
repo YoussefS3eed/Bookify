@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using Libro.BLL.ModelVM.Category;
-using Libro.BLL.ModelVM.ViewModel;
-using Libro.DAL.Entities;
+﻿using Libro.BLL.ModelVM.Author;
 
 namespace Libro.BLL.Mapper
 {
@@ -11,6 +8,9 @@ namespace Libro.BLL.Mapper
         {
             CreateMap<Category, CategoryViewModel>().ReverseMap();
             CreateMap<Category, CategoryFormVM>().ReverseMap();
+
+            CreateMap<Author, AuthorViewModel>();
+            CreateMap<Author, AuthorFormVM>().ReverseMap();
         }
     }
 }

@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Entities\NewFolder\" />
 		<Folder Include="Enum\" />
 		<Folder Include="Repo\Abstraction\" />
 		<Folder Include="Repo\Implementation\" />

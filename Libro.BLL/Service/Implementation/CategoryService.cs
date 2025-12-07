@@ -1,19 +1,12 @@
-﻿using AutoMapper;
-using Libro.BLL.ModelVM.Category;
-using Libro.BLL.ModelVM.ViewModel;
-using Libro.DAL.Entities;
-using Libro.DAL.Repo.Abstraction;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using System.Net;
 
 namespace Libro.BLL.Service.Implementation
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService : ICategoryService, IUniqueNameValidator
     {
         public readonly ICategoryRepo _categoryRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<CategoryService> _logger;
-
         public CategoryService(ICategoryRepo categoryRepo, IMapper mapper, ILogger<CategoryService> logger)
         {
             _categoryRepo = categoryRepo;
@@ -24,23 +17,22 @@ namespace Libro.BLL.Service.Implementation
         {
             try
             {
-                if (model is not null)
+                if (model is null)
+                    return new(null, "You don't enter a write values when you creating category are you atker!!", true, HttpStatusCode.NotAcceptable);
+
+                var mappingCategory = _mapper.Map<Category>(model);
+                var newCategory = await _categoryRepo.AddAsync(mappingCategory);
+                if (newCategory is null)
                 {
-                    var mappingCategory = _mapper.Map<Category>(model);
-                    var newCategory = await _categoryRepo.AddAsync(mappingCategory);
-                    if (newCategory is null)
-                    {
-                        return new(null, "Not Found Your Category", true);
-                    }
-                    var newCategoryViewModel = _mapper.Map<CategoryViewModel>(newCategory);
-                    return new(newCategoryViewModel, null, false);
+                    return new(null, "something went wrong when we adding in database", true, HttpStatusCode.InternalServerError);
                 }
-                return new(null, "You don't enter a write values", true);
+                var newCategoryViewModel = _mapper.Map<CategoryViewModel>(newCategory);
+                return new(newCategoryViewModel, null, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError("An error occurred while adding the category {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while adding the category.", true);
+                return new(null, "An error occurred while adding the category.", true, HttpStatusCode.GatewayTimeout);
             }
         }
 
@@ -48,35 +40,33 @@ namespace Libro.BLL.Service.Implementation
         {
             try
             {
-                if (model is not null)
-                {
-                    var mappingCategory = _mapper.Map<Category>(model);
-                    var updateCategory = await _categoryRepo.UpdateAsync(mappingCategory);
-                    if (updateCategory is null)
-                    {
-                        return new(null, "You must change your name", true);
-                    }
+                if (model is null)
+                    return new(null, "You don't enter a write values when you editing category are you atker!!", true, HttpStatusCode.NotAcceptable);
 
-                    var updatedCategoryViewModel = _mapper.Map<CategoryViewModel>(updateCategory);
-                    return new(updatedCategoryViewModel, null, false);
+                var mappingCategory = _mapper.Map<Category>(model);
+                var updateCategory = await _categoryRepo.UpdateAsync(mappingCategory);
+                if (updateCategory is null)
+                {
+                    return new(null, "You must change your category name", true, HttpStatusCode.BadRequest);
                 }
-                return new(null, null, false);
+
+                var updatedCategoryViewModel = _mapper.Map<CategoryViewModel>(updateCategory);
+                return new(updatedCategoryViewModel, null, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError("An error occurred while updating the category {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while updating the category.", true);
+                return new(null, "An error occurred while updating the category.", true, HttpStatusCode.GatewayTimeout);
             }
         }
         public async Task<Response<CategoryViewModel>> ToggleStatusCategoryAsync(int categoryId)
         {
             try
             {
-                //var category = await _categoryRepo.GetCategoryByIdAsync(categoryId);
                 var category = await _categoryRepo.ToggleStatusAsync(categoryId);
                 if (category is null)
                 {
-                    return new(null, "Not Found Your Category", true);
+                    return new(null, "Not Found Your Category or soething went wrong when we save in database", true, HttpStatusCode.GatewayTimeout);
                 }
                 var categoryViewModel = _mapper.Map<CategoryViewModel>(category);
                 return new(categoryViewModel, null, false);
@@ -84,7 +74,7 @@ namespace Libro.BLL.Service.Implementation
             catch (Exception ex)
             {
                 _logger.LogError("An error occurred while toggling the category status with id {ID} with error massage: {ErrorMassage}", categoryId, ex.Message);
-                return new(null, "An error occurred while toggling the category status.", true);
+                return new(null, "An error occurred while toggling the category status.", true, HttpStatusCode.BadRequest);
             }
         }
 
