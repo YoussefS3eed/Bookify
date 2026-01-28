@@ -7,9 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Repo\**" />
+	  <EmbeddedResource Remove="Repo\**" />
+	  <None Remove="Repo\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="Enum\" />
-		<Folder Include="Repo\Abstraction\" />
-		<Folder Include="Repo\Implementation\" />
 		<Folder Include="Seed\" />
 		<Folder Include="SP\" />
 	</ItemGroup>

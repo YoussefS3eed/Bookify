@@ -1,4 +1,4 @@
-namespace Libro.BLL.ModelVM.ViewModel
+namespace Libro.PL.ViewModels
 {
     public class ErrorViewModel
     {

@@ -1,92 +1,100 @@
-﻿namespace Libro.PL.Controllers
+﻿using AutoMapper;
+using Libro.BLL.DTOs.Category;
+using Libro.PL.ViewModels.Category;
+
+
+namespace Libro.PL.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly ICategoryService _categoryService;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService, IMapper mapper)
         {
             _categoryService = categoryService;
+            _mapper = mapper;
         }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            if (categories.HasErrorMessage)
-            {
-                return StatusCode((int)categories.StatusCode, categories.ErrorMessage);
-            }
+            var result = await _categoryService.GetAllAsync();
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
 
-            return View(categories.Result);
+            var vm = _mapper.Map<IEnumerable<CategoryViewModel>>(result.Result);
+            return View(vm);
         }
 
         [HttpGet]
         [AjaxOnly]
         public IActionResult Create()
         {
-            return PartialView("_Form");
+            return PartialView("_Form", new CategoryFormViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CategoryFormVM model)
+        public async Task<IActionResult> Create(CategoryFormViewModel model)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
-            }
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var category = await _categoryService.CreateCategoryAsync(model);
-            if (category.HasErrorMessage)
-            {
-                return StatusCode((int)category.StatusCode, category.ErrorMessage);
-            }
+            var dto = _mapper.Map<CategoryCreateDto>(model);
+            var result = await _categoryService.CreateAsync(dto);
 
-            return PartialView("_CategoryRow", category?.Result);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            return PartialView("_CategoryRow", rowVm);
         }
 
         [HttpGet]
         [AjaxOnly]
         public async Task<IActionResult> Edit(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category.HasErrorMessage)
-            {
-                return StatusCode((int)category.StatusCode, category.ErrorMessage);
-            }
+            var result = await _categoryService.GetByIdAsync(id);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
 
-            return PartialView("_Form", category.Result);
+            var vm = _mapper.Map<CategoryFormViewModel>(result.Result);
+            return PartialView("_Form", vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CategoryFormVM model)
+        public async Task<IActionResult> Edit(CategoryFormViewModel model)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
-            }
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var category = await _categoryService.UpdateCategoryAsync(model);
-            if (category.HasErrorMessage)
-            {
-                return StatusCode((int)category.StatusCode, category.ErrorMessage);
-            }
+            var dto = _mapper.Map<CategoryUpdateDto>(model);
+            var result = await _categoryService.UpdateAsync(dto);
 
-            return PartialView("_CategoryRow", category.Result);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            return PartialView("_CategoryRow", rowVm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var category = await _categoryService.ToggleStatusCategoryAsync(id);
-            if (category.HasErrorMessage)
-            {
-                return StatusCode((int)category.StatusCode, category.ErrorMessage);
-            }
+            var result = await _categoryService.ToggleStatusAsync(id);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
 
-            return Ok(category.Result!.UpdatedOn?.ToString());
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            return Ok(rowVm?.UpdatedOn?.ToString());
+        }
+
+        public async Task<IActionResult> AllowItem(CategoryFormViewModel model)
+        {
+            return Json(await _categoryService.IsAllowed(model.Id, model.Name));
         }
     }
 }

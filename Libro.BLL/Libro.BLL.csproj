@@ -9,8 +9,7 @@
 	<ItemGroup>
 		<Folder Include="Service\Implementation\" />
 		<Folder Include="Service\Abstraction\" />
-		<Folder Include="Mapper\" />
-		<Folder Include="Helper\" />
+		<Folder Include="Common\Helpers\" />
 	</ItemGroup>
 
 	<ItemGroup>

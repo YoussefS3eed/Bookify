@@ -1,4 +1,5 @@
-﻿namespace Libro.BLL.Common
+﻿using Libro.BlL.Mapper;
+namespace Libro.BLL.Common
 {
     public static class ModularBusinessLogicLayer
     {

@@ -1,9 +1,10 @@
-﻿namespace Libro.DAL.Repo.Implementation
+﻿using Libro.DAL.Repositories.Abstraction;
+
+namespace Libro.DAL.Repositories.Implementation
 {
     public class AuthorRepo : IAuthorRepo
     {
         private readonly LibroDbContext _context;
-
         public AuthorRepo(LibroDbContext context)
         {
             _context = context;
@@ -50,12 +51,7 @@
             try
             {
                 var author = await GetAuthorByIdAsync(id);
-                if (author is null)
-                {
-                    return null;
-                }
-
-                author.ToggleStatus("System");
+                author!.ToggleStatus("System");
                 if (await SaveChangesAsync())
                     return author;
                 return null;
@@ -67,6 +63,8 @@
         }
         public async Task<bool> AnyAsync(Expression<Func<Author, bool>> predicate)
             => await _context.Authors.AnyAsync(predicate);
+        public async Task<Author?> GetSingleOrDefaultAsync(Expression<Func<Author, bool>> predicate) =>
+            await _context.Authors.SingleOrDefaultAsync(predicate);
         public async Task<Author?> GetAuthorByIdAsync(int id)
             => await _context.Authors.FindAsync(id);
         public IQueryable<Author> GetAllAuthors(Expression<Func<Author, bool>>? filter = null)

@@ -1,10 +1,11 @@
-﻿using System.Net;
+﻿using Libro.BLL.DTOs.Category;
+using System.Net;
 
 namespace Libro.BLL.Service.Implementation
 {
     public class CategoryService : ICategoryService, IUniqueNameValidator
     {
-        public readonly ICategoryRepo _categoryRepo;
+        private readonly ICategoryRepo _categoryRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<CategoryService> _logger;
         public CategoryService(ICategoryRepo categoryRepo, IMapper mapper, ILogger<CategoryService> logger)
@@ -13,122 +14,133 @@ namespace Libro.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<CategoryViewModel>> CreateCategoryAsync(CategoryFormVM model)
+        public async Task<Response<CategoryDto>> CreateAsync(CategoryCreateDto dto)
         {
             try
             {
-                if (model is null)
-                    return new(null, "You don't enter a write values when you creating category are you atker!!", true, HttpStatusCode.NotAcceptable);
+                if (dto == null)
+                    return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
 
-                var mappingCategory = _mapper.Map<Category>(model);
-                var newCategory = await _categoryRepo.AddAsync(mappingCategory);
-                if (newCategory is null)
-                {
-                    return new(null, "something went wrong when we adding in database", true, HttpStatusCode.InternalServerError);
-                }
-                var newCategoryViewModel = _mapper.Map<CategoryViewModel>(newCategory);
-                return new(newCategoryViewModel, null, false);
+                if (await NameExistsAsync(dto.Name))
+                    return new(null, "Category name already exists.", true, HttpStatusCode.Conflict);
+
+                var category = _mapper.Map<Category>(dto);
+                var result = await _categoryRepo.AddAsync(category);
+
+                if (result == null)
+                    return new(null, "Failed to create category in database.", true, HttpStatusCode.InternalServerError);
+
+                return new(_mapper.Map<CategoryDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while adding the category {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while adding the category.", true, HttpStatusCode.GatewayTimeout);
+                _logger.LogError(ex, "Error creating category {Name}", dto?.Name);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-
-        public async Task<Response<CategoryViewModel>> UpdateCategoryAsync(CategoryFormVM model)
+        public async Task<Response<CategoryDto>> UpdateAsync(CategoryUpdateDto dto)
         {
             try
             {
-                if (model is null)
-                    return new(null, "You don't enter a write values when you editing category are you atker!!", true, HttpStatusCode.NotAcceptable);
+                if (dto == null)
+                    return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
 
-                var mappingCategory = _mapper.Map<Category>(model);
-                var updateCategory = await _categoryRepo.UpdateAsync(mappingCategory);
-                if (updateCategory is null)
-                {
-                    return new(null, "You must change your category name", true, HttpStatusCode.BadRequest);
-                }
+                var existingCategory = await _categoryRepo.GetCategoryByIdAsync(dto.Id);
+                if (existingCategory == null)
+                    return new(null, "Category not found.", true, HttpStatusCode.NotFound);
 
-                var updatedCategoryViewModel = _mapper.Map<CategoryViewModel>(updateCategory);
-                return new(updatedCategoryViewModel, null, false);
+                // Check if name changed and validate uniqueness
+                if (existingCategory.Name != dto.Name && await NameExistsAsync(dto.Name))
+                    return new(null, "Category name already exists.", true, HttpStatusCode.Conflict);
+                
+                var category = _mapper.Map<Category>(dto);
+                var result = await _categoryRepo.UpdateAsync(category);
+                if (result == null)
+                    return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+
+                return new(_mapper.Map<CategoryDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while updating the category {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while updating the category.", true, HttpStatusCode.GatewayTimeout);
+                _logger.LogError(ex, "Error updating category {Name}", dto?.Name);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<CategoryViewModel>> ToggleStatusCategoryAsync(int categoryId)
-        {
-            try
-            {
-                var category = await _categoryRepo.ToggleStatusAsync(categoryId);
-                if (category is null)
-                {
-                    return new(null, "Not Found Your Category or soething went wrong when we save in database", true, HttpStatusCode.GatewayTimeout);
-                }
-                var categoryViewModel = _mapper.Map<CategoryViewModel>(category);
-                return new(categoryViewModel, null, false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("An error occurred while toggling the category status with id {ID} with error massage: {ErrorMassage}", categoryId, ex.Message);
-                return new(null, "An error occurred while toggling the category status.", true, HttpStatusCode.BadRequest);
-            }
-        }
-
-        public async Task<bool> NameExistsAsync(string name)
-        {
-            return await _categoryRepo.AnyAsync(c => c.Name == name);
-        }
-        public async Task<Response<CategoryFormVM>> GetCategoryByIdAsync(int categoryId)
+        public async Task<Response<CategoryDto>> ToggleStatusAsync(int categoryId)
         {
             try
             {
                 var category = await _categoryRepo.GetCategoryByIdAsync(categoryId);
-                if (category is null)
-                {
-                    return new(null, "Category not found.", true);
-                }
-                return new(_mapper.Map<CategoryFormVM>(category), null, false);
+                if (category == null)
+                    return new(null, "Category not found.", true, HttpStatusCode.NotFound);
+
+                var result = await _categoryRepo.ToggleStatusAsync(category.Id);
+                if (result == null)
+                    return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                
+                return new(_mapper.Map<CategoryDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching category by id {ID}: {Message}", categoryId, ex.Message);
-                return new(null, "Could not load category.", true);
+                _logger.LogError(ex, "Error toggling status for category {Id}", categoryId);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<IEnumerable<CategoryViewModel>>> GetAllCategoriesAsync()
+        public async Task<Response<CategoryDto>> GetByIdAsync(int categoryId)
+        {
+            try
+            {
+                var category = await _categoryRepo.GetCategoryByIdAsync(categoryId);
+                if (category == null)
+                    return new(null, "Category not found.", true, HttpStatusCode.NotFound);
+
+                return new(_mapper.Map<CategoryDto>(category), null, false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching category by id {Id}", categoryId);
+                return new(null, "Could not load category.", true, HttpStatusCode.InternalServerError);
+            }
+        }
+        public async Task<Response<IEnumerable<CategoryDto>>> GetAllAsync()
         {
             try
             {
                 var categories = await _categoryRepo.GetAllCategories().AsNoTracking().ToListAsync();
-                var mappedCategories = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
-                return new(mappedCategories, null, false);
-
+                return new(_mapper.Map<IEnumerable<CategoryDto>>(categories), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching active categories: {Message}", ex.Message);
-                return new(null, "Could not load categories.", true);
+                _logger.LogError(ex, "Error fetching active categories");
+                return new(null, "Could not load categories.", true, HttpStatusCode.InternalServerError);
             }
         }
-
-        public async Task<Response<IEnumerable<CategoryViewModel>>> GetAllNotActiveCategoriesAsync()
+        public async Task<Response<IEnumerable<CategoryDto>>> GetAllNotActiveAsync()
         {
             try
             {
-                var categories = await _categoryRepo.GetAllCategories(x => x.IsDeleted).AsNoTracking().ToListAsync();
-                var mappedCategories = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
-                return new(mappedCategories, null, false);
+                var categories = await _categoryRepo.GetAllCategories(c => c.IsDeleted).AsNoTracking().ToListAsync();
+                return new(_mapper.Map<IEnumerable<CategoryDto>>(categories), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching inactive categories: {Message}", ex.Message);
-                return new(null, "Could not load categories.", true);
+                _logger.LogError(ex, "Error fetching inactive categories");
+                return new(null, "Could not load categories.", true, HttpStatusCode.InternalServerError);
             }
+        }
+        public async Task<bool> NameExistsAsync(string name) =>
+            await _categoryRepo.AnyAsync(c => c.Name == name);
+        public async Task<bool> IsAllowed(int Id, string name)
+        {
+            var category =  await _categoryRepo.GetSingleOrDefaultAsync(c => c.Name == name);
+            return category is null || category.Id.Equals(Id);
+        }
+        private string GetCurrentUser()
+        {
+            // TODO: Implement this to return the current user for categories
+            // يجب تنفيذ هذا ليعيد المستخدم الحالي
+            // مثال: يمكن استخدام IHttpContextAccessor
+            return "System"; // مؤقت
         }
     }
 }
-

@@ -1,6 +1,5 @@
-﻿using Libro.DAL.Repo.Implementation;
-
-
+﻿using Libro.DAL.Repositories.Abstraction;
+using Libro.DAL.Repositories.Implementation;
 namespace Libro.DAL.Common
 {
     public static class ModularDataAccessLayer

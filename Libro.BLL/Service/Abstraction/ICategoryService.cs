@@ -1,12 +1,16 @@
-﻿namespace Libro.BLL.Service.Abstraction
+﻿using Libro.BLL.DTOs.Category;
+
+namespace Libro.BLL.Service.Abstraction
 {
     public interface ICategoryService
     {
-        Task<Response<CategoryViewModel>> CreateCategoryAsync(CategoryFormVM model);
-        Task<Response<CategoryViewModel>> UpdateCategoryAsync(CategoryFormVM model);
-        Task<Response<CategoryViewModel>> ToggleStatusCategoryAsync(int categoryId);
-        Task<Response<CategoryFormVM>> GetCategoryByIdAsync(int categoryId);
-        Task<Response<IEnumerable<CategoryViewModel>>> GetAllCategoriesAsync();
-        Task<Response<IEnumerable<CategoryViewModel>>> GetAllNotActiveCategoriesAsync();
+        Task<Response<CategoryDto>> CreateAsync(CategoryCreateDto dto);
+        Task<Response<CategoryDto>> UpdateAsync(CategoryUpdateDto dto);
+        Task<Response<CategoryDto>> ToggleStatusAsync(int categoryId);
+        Task<Response<CategoryDto>> GetByIdAsync(int categoryId);
+        Task<Response<IEnumerable<CategoryDto>>> GetAllAsync();
+        Task<Response<IEnumerable<CategoryDto>>> GetAllNotActiveAsync();
+        Task<bool> NameExistsAsync(string name);
+        Task<bool> IsAllowed(int Id, string Name);
     }
 }

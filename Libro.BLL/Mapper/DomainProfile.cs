@@ -1,16 +1,19 @@
-﻿using Libro.BLL.ModelVM.Author;
+﻿using Libro.BLL.DTOs.Author;
+using Libro.BLL.DTOs.Category;
 
-namespace Libro.BLL.Mapper
+namespace Libro.BlL.Mapper
 {
     public class DomainProfile : Profile
     {
         public DomainProfile()
         {
-            CreateMap<Category, CategoryViewModel>().ReverseMap();
-            CreateMap<Category, CategoryFormVM>().ReverseMap();
+            CreateMap<CategoryCreateDto, Category>();
+            CreateMap<CategoryUpdateDto, Category>();
+            CreateMap<Category, CategoryDto>();
 
-            CreateMap<Author, AuthorViewModel>();
-            CreateMap<Author, AuthorFormVM>().ReverseMap();
+            CreateMap<AuthorCreateDto, Author>();
+            CreateMap<AuthorUpdateDto, Author>();
+            CreateMap<Author, AuthorDto>();
         }
     }
 }

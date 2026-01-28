@@ -1,5 +1,6 @@
 using Libro.BLL.Common;
 using Libro.DAL.Common;
+using Libro.PL.Mapper;
 namespace Libro.PL
 {
     public class Program
@@ -13,7 +14,7 @@ namespace Libro.PL
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
 
-            // Add Connection String
+            // ------------------- Add Connection String and DbContext -------------------
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<LibroDbContext>(options =>
             {
@@ -28,7 +29,7 @@ namespace Libro.PL
             // ------------------- Dependecy Injection -------------------
             builder.Services.AddDataAccessLayerInPL();
             builder.Services.AddBusinessLogicLayerInPL();
-
+            builder.Services.AddAutoMapper(x => x.AddProfile<DomainProfile>());
             // ------------------- Add MVC -------------------
             builder.Services.AddControllersWithViews();
             var app = builder.Build();
@@ -56,7 +57,7 @@ namespace Libro.PL
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
             app.MapRazorPages()
-               .WithStaticAssets();
+                .WithStaticAssets();
 
             app.Run();
         }

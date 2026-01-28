@@ -1,14 +1,17 @@
-﻿using Libro.BLL.ModelVM.Author;
+﻿using Libro.BLL.Common.ResponseResult;
+using Libro.BLL.DTOs.Author;
 
 namespace Libro.BLL.Service.Abstraction
 {
     public interface IAuthorService
     {
-        Task<Response<AuthorViewModel>> CreateAuthorAsync(AuthorFormVM model);
-        Task<Response<AuthorViewModel>> UpdateAuthorAsync(AuthorFormVM model);
-        Task<Response<AuthorViewModel>> ToggleStatusAuthorAsync(int authorId);
-        Task<Response<AuthorFormVM>> GetAuthorByIdAsync(int authorId);
-        Task<Response<IEnumerable<AuthorViewModel>>> GetAllAuthorsAsync();
-        Task<Response<IEnumerable<AuthorViewModel>>> GetAllNotActiveAuthorsAsync();
+        Task<Response<AuthorDto>> CreateAsync(AuthorCreateDto dto);
+        Task<Response<AuthorDto>> UpdateAsync(AuthorUpdateDto dto);
+        Task<Response<AuthorDto>> ToggleStatusAsync(int authorId);
+        Task<Response<AuthorDto>> GetByIdAsync(int authorId);
+        Task<Response<IEnumerable<AuthorDto>>> GetAllAsync();
+        Task<Response<IEnumerable<AuthorDto>>> GetAllNotActiveAsync();
+        Task<bool> NameExistsAsync(string name);
+        Task<bool> IsAllowed(int Id, string Name);
     }
 }

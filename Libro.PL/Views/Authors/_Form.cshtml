@@ -1,5 +1,5 @@
-﻿@using Libro.BLL.ModelVM.Author
-@model AuthorFormVM
+﻿@using Libro.PL.ViewModels.Author
+@model AuthorFormViewModel
 
 <form asp-action="@(Model?.Id > 0 ? "Edit" : "Create")"
       data-ajax-method="post"

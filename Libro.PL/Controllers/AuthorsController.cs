@@ -1,94 +1,96 @@
-﻿using Libro.BLL.ModelVM.Author;
-
+﻿using AutoMapper;
+using Libro.BLL.DTOs.Author;
+using Libro.PL.ViewModels.Author;
 namespace Libro.PL.Controllers
 {
     public class AuthorsController : Controller
     {
         private readonly IAuthorService _authorService;
-
-        public AuthorsController(IAuthorService authorService)
+        private readonly IMapper _mapper;
+        public AuthorsController(IAuthorService authorService, IMapper mapper)
         {
             _authorService = authorService;
+            _mapper = mapper;
         }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var authors = await _authorService.GetAllAuthorsAsync();
-            if (authors.HasErrorMessage)
-            {
-                return StatusCode((int)authors.StatusCode, authors.ErrorMessage);
-            }
+            var result = await _authorService.GetAllAsync();
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
 
-            return View(authors.Result);
+            var vm = _mapper.Map<IEnumerable<AuthorViewModel>>(result.Result);
+            return View(vm);
         }
 
         [HttpGet]
         [AjaxOnly]
         public IActionResult Create()
         {
-            return PartialView("_Form");
+            return PartialView("_Form", new AuthorFormViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AuthorFormVM model)
+        public async Task<IActionResult> Create(AuthorFormViewModel model)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
-            }
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var author = await _authorService.CreateAuthorAsync(model);
-            if (author.HasErrorMessage)
-            {
-                return StatusCode((int)author.StatusCode, author.ErrorMessage);
-            }
+            var dto = _mapper.Map<AuthorCreateDto>(model);
+            var result = await _authorService.CreateAsync(dto);
 
-            return PartialView("_AuthorRow", author?.Result);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            return PartialView("_AuthorRow", rowVm);
         }
 
         [HttpGet]
         [AjaxOnly]
         public async Task<IActionResult> Edit(int id)
         {
-            var author = await _authorService.GetAuthorByIdAsync(id);
-            if (author.HasErrorMessage)
-            {
-                return StatusCode((int)author.StatusCode, author.ErrorMessage);
-            }
+            var result = await _authorService.GetByIdAsync(id);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
 
-            return PartialView("_Form", author.Result);
+            var vm = _mapper.Map<AuthorFormViewModel>(result.Result);
+            return PartialView("_Form", vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(AuthorFormVM model)
+        public async Task<IActionResult> Edit(AuthorFormViewModel model)
         {
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState[nameof(model.Name)]?.Errors[0].ErrorMessage);
-            }
+                return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var author = await _authorService.UpdateAuthorAsync(model);
-            if (author.HasErrorMessage)
-            {
-                return StatusCode((int)author.StatusCode, author.ErrorMessage);
-            }
+            var dto = _mapper.Map<AuthorUpdateDto>(model);
+            var result = await _authorService.UpdateAsync(dto);
 
-            return PartialView("_AuthorRow", author.Result);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            return PartialView("_AuthorRow", rowVm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var author = await _authorService.ToggleStatusAuthorAsync(id);
-            if (author.HasErrorMessage)
-            {
-                return StatusCode((int)author.StatusCode, author.ErrorMessage);
-            }
+            var result = await _authorService.ToggleStatusAsync(id);
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            return Ok(rowVm?.UpdatedOn?.ToString());
+        }
 
-            return Ok(author.Result!.UpdatedOn?.ToString());
+        public async Task<IActionResult> AllowItem(AuthorFormViewModel model)
+        {
+            return Json(await _authorService.IsAllowed(model.Id, model.Name));
         }
     }
 }

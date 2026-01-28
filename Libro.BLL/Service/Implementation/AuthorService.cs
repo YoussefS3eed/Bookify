@@ -1,11 +1,11 @@
-﻿using Libro.BLL.ModelVM.Author;
+﻿using Libro.BLL.DTOs.Author;
 using System.Net;
 
 namespace Libro.BLL.Service.Implementation
 {
     public class AuthorService : IAuthorService, IUniqueNameValidator
     {
-        public readonly IAuthorRepo _authorRepo;
+        private readonly IAuthorRepo _authorRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<AuthorService> _logger;
         public AuthorService(IAuthorRepo authorRepo, IMapper mapper, ILogger<AuthorService> logger)
@@ -14,121 +14,134 @@ namespace Libro.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<AuthorViewModel>> CreateAuthorAsync(AuthorFormVM model)
+        public async Task<Response<AuthorDto>> CreateAsync(AuthorCreateDto dto)
         {
             try
             {
-                if (model is null)
-                    return new(null, "You don't enter a write values when you creating author are you atker!!", true, HttpStatusCode.NotAcceptable);
+                if (dto == null)
+                    return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
 
-                var mappingAuthor = _mapper.Map<Author>(model);
-                var newAuthor = await _authorRepo.AddAsync(mappingAuthor);
-                if (newAuthor is null)
-                {
-                    return new(null, "something went wrong when we adding in database", true, HttpStatusCode.InternalServerError);
-                }
-                var newAuthorViewModel = _mapper.Map<AuthorViewModel>(newAuthor);
-                return new(newAuthorViewModel, null, false);
+                if (await NameExistsAsync(dto.Name))
+                    return new(null, "Author name already exists.", true, HttpStatusCode.Conflict);
+
+                var author = _mapper.Map<Author>(dto);
+                var result = await _authorRepo.AddAsync(author);
+
+                if (result == null)
+                    return new(null, "Failed to create author in database.", true, HttpStatusCode.InternalServerError);
+
+                return new(_mapper.Map<AuthorDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while adding the author {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while adding the author.", true, HttpStatusCode.GatewayTimeout);
+                _logger.LogError(ex, "Error creating author {Name}", dto?.Name);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-
-        public async Task<Response<AuthorViewModel>> UpdateAuthorAsync(AuthorFormVM model)
+        public async Task<Response<AuthorDto>> UpdateAsync(AuthorUpdateDto dto)
         {
             try
             {
-                if (model is null)
-                    return new(null, "You don't enter a write values when you editing author are you atker!!", true, HttpStatusCode.NotAcceptable);
+                if (dto == null)
+                    return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
 
-                var mappingAuthor = _mapper.Map<Author>(model);
-                var updateAuthor = await _authorRepo.UpdateAsync(mappingAuthor);
-                if (updateAuthor is null)
-                {
-                    return new(null, "You must change your author name", true, HttpStatusCode.BadRequest);
-                }
+                var existingAuthor = await _authorRepo.GetAuthorByIdAsync(dto.Id);
+                if (existingAuthor == null)
+                    return new(null, "Author not found.", true, HttpStatusCode.NotFound);
 
-                var updatedAuthorViewModel = _mapper.Map<AuthorViewModel>(updateAuthor);
-                return new(updatedAuthorViewModel, null, false);
+                if (existingAuthor.Name != dto.Name && await NameExistsAsync(dto.Name))
+                    return new(null, "Author name already exists.", true, HttpStatusCode.Conflict);
+
+                var author = _mapper.Map<Author>(dto);
+                var result = await _authorRepo.UpdateAsync(author);
+
+                if (result == null)
+                    return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+
+                return new(_mapper.Map<AuthorDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while updating the author {Name} with error massage: {ErrorMassage}", model?.Name, ex.Message);
-                return new(null, "An error occurred while updating the author.", true, HttpStatusCode.GatewayTimeout);
+                _logger.LogError(ex, "Error updating author {Name}", dto?.Name);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<AuthorViewModel>> ToggleStatusAuthorAsync(int authorId)
+        public async Task<Response<AuthorDto>> ToggleStatusAsync(int authorId)
         {
             try
             {
-                var author = await _authorRepo.ToggleStatusAsync(authorId);
-                if (author is null)
-                {
-                    return new(null, "Not Found Your Author or soething went wrong when we save in database", true, HttpStatusCode.GatewayTimeout);
-                }
-                var authorViewModel = _mapper.Map<AuthorViewModel>(author);
-                return new(authorViewModel, null, false);
+
+                var author = await _authorRepo.GetAuthorByIdAsync(authorId);
+                if (author == null)
+                    return new(null, "Author not found.", true, HttpStatusCode.NotFound);
+
+                var result = await _authorRepo.ToggleStatusAsync(author.Id);
+                if(result == null)
+                    return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+
+                return new(_mapper.Map<AuthorDto>(result), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while toggling the author status with id {ID} with error massage: {ErrorMassage}", authorId, ex.Message);
-                return new(null, "An error occurred while toggling the author status.", true, HttpStatusCode.BadRequest);
+                _logger.LogError(ex, "Error toggling status for author {Id}", authorId);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-
-        public async Task<bool> NameExistsAsync(string name)
-        {
-            return await _authorRepo.AnyAsync(c => c.Name == name);
-        }
-        public async Task<Response<AuthorFormVM>> GetAuthorByIdAsync(int authorId)
+        public async Task<Response<AuthorDto>> GetByIdAsync(int authorId)
         {
             try
             {
                 var author = await _authorRepo.GetAuthorByIdAsync(authorId);
-                if (author is null)
-                {
-                    return new(null, "Author not found.", true);
-                }
-                return new(_mapper.Map<AuthorFormVM>(author), null, false);
+                if (author == null)
+                    return new(null, "Author not found.", true, HttpStatusCode.NotFound);
+
+                return new(_mapper.Map<AuthorDto>(author), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching author by id {ID}: {Message}", authorId, ex.Message);
-                return new(null, "Could not load author.", true);
+                _logger.LogError(ex, "Error fetching author by id {Id}", authorId);
+                return new(null, "Could not load author.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<IEnumerable<AuthorViewModel>>> GetAllAuthorsAsync()
+        public async Task<Response<IEnumerable<AuthorDto>>> GetAllAsync()
         {
             try
             {
                 var authors = await _authorRepo.GetAllAuthors().AsNoTracking().ToListAsync();
-                var mappedAuthors = _mapper.Map<IEnumerable<AuthorViewModel>>(authors);
-                return new(mappedAuthors, null, false);
-
+                return new(_mapper.Map<IEnumerable<AuthorDto>>(authors), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching active authors: {Message}", ex.Message);
+                _logger.LogError(ex, "Error fetching active authors");
                 return new(null, "Could not load authors.", true);
             }
         }
-
-        public async Task<Response<IEnumerable<AuthorViewModel>>> GetAllNotActiveAuthorsAsync()
+        public async Task<Response<IEnumerable<AuthorDto>>> GetAllNotActiveAsync()
         {
             try
             {
-                var authors = await _authorRepo.GetAllAuthors(x => x.IsDeleted).AsNoTracking().ToListAsync();
-                var mappedAuthors = _mapper.Map<IEnumerable<AuthorViewModel>>(authors);
-                return new(mappedAuthors, null, false);
+                var authors = await _authorRepo.GetAllAuthors(a => a.IsDeleted).AsNoTracking().ToListAsync();
+                return new(_mapper.Map<IEnumerable<AuthorDto>>(authors), null, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while fetching inactive authors: {Message}", ex.Message);
+                _logger.LogError(ex, "Error fetching inactive authors");
                 return new(null, "Could not load authors.", true);
             }
+        }
+        public async Task<bool> NameExistsAsync(string name) =>
+            await _authorRepo.AnyAsync(a => a.Name == name);
+        public async Task<bool> IsAllowed(int Id, string name)
+        {
+            var category = await _authorRepo.GetSingleOrDefaultAsync(c => c.Name == name);
+            return category is null || category.Id.Equals(Id);
+        }
+        private string GetCurrentUser()
+        {
+            // TODO: Implement this to return the current user for authors
+            // يجب تنفيذ هذا ليعيد المستخدم الحالي
+            // مثال: يمكن استخدام IHttpContextAccessor
+            return "System"; // مؤقت
         }
     }
 }

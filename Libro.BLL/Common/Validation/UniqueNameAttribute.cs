@@ -1,4 +1,4 @@
-﻿namespace Libro.BLL.ModelVM.Validation
+﻿namespace Libro.BLL.Common.Validation
 {
     public class UniqueNameAttribute : ValidationAttribute
     {
