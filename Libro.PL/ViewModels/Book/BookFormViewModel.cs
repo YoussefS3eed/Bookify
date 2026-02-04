@@ -27,6 +27,7 @@ namespace Libro.PL.ViewModels.Book
         public IFormFile? Image { get; set; }
 
         public string? ImageUrl { get; set; }
+        public string? ImageThumbnailUrl { get; set; }
 
         [MaxLength(50, ErrorMessage = Errors.MaxLength), Required]
         public string Hall { get; set; } = null!;

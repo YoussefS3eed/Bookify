@@ -7,6 +7,8 @@ using Libro.PL.Settings;
 using Libro.PL.ViewModels.Book;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Libro.PL.Controllers
 {
@@ -47,10 +49,6 @@ namespace Libro.PL.Controllers
             if (!ModelState.IsValid)
                 return View("Form", await PopulateViewModel(model));
 
-            #region using Cloudinary
-            var CreateBookDTO = _mapper.Map<CreateBookDTO>(model);
-            #endregion
-
             // Handle image upload
             if (model.Image != null)
             {
@@ -60,24 +58,14 @@ namespace Libro.PL.Controllers
                     ModelState.AddModelError(nameof(model.Image), uploadImageResult.Error!);
                     return View("Form", await PopulateViewModel(model));
                 }
-                #region using SaveInDisk
-                //model.ImageUrl = uploadImageResult.ImageUrl;
-                #endregion
 
-                #region using Cloudinary
-                var result1 = await SaveImageToCloudinary(model.Image, uploadImageResult.ImageUrl!);
-                if (result1 != null)
-                {
-                    CreateBookDTO.ImageUrl = result1.SecureUrl.ToString();
-                    CreateBookDTO.ImageThumbnailUrl = GetThumbnailUrl(CreateBookDTO.ImageUrl);
-                    CreateBookDTO.ImagePublicId = result1.PublicId;
-                }
-                #endregion
+                model.ImageUrl = $"/images/books/{uploadImageResult.ImageName}";
+                model.ImageThumbnailUrl = $"/images/books/thumb/{uploadImageResult.ImageName}";
             }
 
-            #region using SaveInDisk
-            //var CreateBookDTO = _mapper.Map<CreateBookDTO>(model);
-            #endregion
+
+            var CreateBookDTO = _mapper.Map<CreateBookDTO>(model);
+
 
             // Call service
             var result = await _bookService.CreateAsync(CreateBookDTO);
@@ -87,10 +75,13 @@ namespace Libro.PL.Controllers
                 TempData["Error"] = result.ErrorMessage;
                 return View("Form", await PopulateViewModel(model));
             }
-            #region using SaveInDisk
-            //if (model.Image != null)
-            //    await SaveImageToDisk(model.Image, result.Result?.ImageUrl!);
-            #endregion
+
+            // Save image to disk
+            if (model.Image != null)
+            {
+                await SaveImageToDisk(model.Image, model.ImageUrl!);
+                await SaveThumbImageToDisk(model.Image, model.ImageThumbnailUrl!);
+            }
 
             TempData["Success"] = "Book created successfully";
             return RedirectToAction(nameof(Index));
@@ -118,47 +109,37 @@ namespace Libro.PL.Controllers
 
 
             var book = await _bookService.GetByIdAsync(model.Id);
+            if (book != null)
+            {
+                if (book.HasErrorMessage || book.Result == null)
+                {
+                    TempData["Error"] = book.ErrorMessage ?? "Book not found";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            var oldImgUrl = book!.Result!.ImageUrl;
+            var oldThumbUrl = book!.Result!.ImageThumbnailUrl;
+
             var updateBookDto = _mapper.Map<UpdateBookDTO>(model);
+
             if (model.Image != null)
             {
-                var uploadResult = await HandleImageUpload(model.Image);
-                if (!uploadResult.Success)
+                var uploadImageResult = await HandleImageUpload(model.Image);
+                if (!uploadImageResult.Success)
                 {
-                    ModelState.AddModelError(nameof(model.Image), uploadResult.Error!);
+                    ModelState.AddModelError(nameof(model.Image), uploadImageResult.Error!);
                     var viewModel = await PopulateViewModel(model);
                     return View("Form", viewModel);
                 }
-                // Delete old image if exists
-                if (!string.IsNullOrEmpty(book.Result!.ImageUrl))
-                {
-                    #region using SaveInDisk
-                    //DeleteOldImageFromDisk(book.Result!.ImageUrl);
-                    #endregion
 
-                    #region using Cloudinary
-                    await DeleteOldImageFromCloudinary(book.Result.ImagePublicId);
-                    var result1 = await SaveImageToCloudinary(model.Image, uploadResult.ImageUrl!);
-                    if (result1 != null)
-                    {
-                        updateBookDto.ImageUrl = result1.SecureUrl.ToString();
-                        updateBookDto.ImageThumbnailUrl = GetThumbnailUrl(updateBookDto.ImageUrl);
-                        updateBookDto.ImagePublicId = result1.PublicId;
-                    }
-                    #endregion
-                }
-
+                updateBookDto.ImageUrl = $"/images/books/{uploadImageResult.ImageName}";
+                updateBookDto.ImageThumbnailUrl = $"/images/books/thumb/{uploadImageResult.ImageName}";
             }
-            else if (model.Image is null && !string.IsNullOrEmpty(book.Result!.ImageUrl))
+            else if (model.Image is null)
             {
-                updateBookDto.ImageUrl = book.Result!.ImageUrl;
-                updateBookDto.ImageThumbnailUrl = book.Result!.ImageThumbnailUrl;
-                updateBookDto.ImagePublicId = book.Result!.ImagePublicId;
-
+                updateBookDto.ImageUrl = oldImgUrl;
+                updateBookDto.ImageThumbnailUrl = oldThumbUrl;
             }
-
-            #region using SaveInDisk
-            //var updateBookDto = _mapper.Map<UpdateBookDTO>(model);
-            #endregion
 
             // Call service
             var result = await _bookService.UpdateAsync(updateBookDto);
@@ -171,10 +152,16 @@ namespace Libro.PL.Controllers
             }
 
             //// Save new image if uploaded
-            //if (model.Image != null && !string.IsNullOrEmpty(model.ImageUrl))
-            //{
-            //    await SaveImageToDisk(model.Image, model.ImageUrl);
-            //}
+            if (model.Image != null)
+            {
+                await SaveImageToDisk(model.Image, result.Result!.ImageUrl!);
+                await SaveThumbImageToDisk(model.Image, result.Result!.ImageThumbnailUrl!);
+                if(!string.IsNullOrEmpty(oldImgUrl))
+                {
+                    DeleteOldImageFromDisk(oldImgUrl);
+                    DeleteOldImageFromDisk(oldThumbUrl);
+                }
+            }
 
             TempData["Success"] = "Book updated successfully";
             return RedirectToAction(nameof(Index));
@@ -200,7 +187,7 @@ namespace Libro.PL.Controllers
 
             return viewModel;
         }
-        private async Task<(bool Success, string? ImageUrl, string? Error)> HandleImageUpload(IFormFile image)
+        private async Task<(bool Success, string? ImageName, string? Error)> HandleImageUpload(IFormFile image)
         {
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
 
@@ -217,47 +204,28 @@ namespace Libro.PL.Controllers
             var imageName = $"{Guid.NewGuid()}{extension}";
             return (true, imageName, null);
         }
-        private async Task SaveImageToDisk(IFormFile image, string imageName)
+        private async Task SaveImageToDisk(IFormFile image, string imageUrl)
         {
-            var path = Path.Combine(_webHostEnvironment.WebRootPath, "images/books", imageName);
+            var path = $"{_webHostEnvironment.WebRootPath}/{imageUrl}";
 
-            using var stream = new FileStream(path, FileMode.Create);
+            using var stream = System.IO.File.Create(path);
             await image.CopyToAsync(stream);
+            stream.Dispose();
         }
-
-        private async Task<ImageUploadResult?> SaveImageToCloudinary(IFormFile image, string imageName)
+        private async Task SaveThumbImageToDisk(IFormFile image, string imageUrl)
         {
-            using var straem = image.OpenReadStream();
-
-            var imageParams = new ImageUploadParams
-            {
-                File = new FileDescription(imageName, straem),
-                UseFilename = true
-            };
-            return await _cloudinary.UploadAsync(imageParams);
+            using var thumbImage = Image.Load(image.OpenReadStream());
+            var ratio = (float)thumbImage.Width / 200;
+            var height = (int)(thumbImage.Height / ratio);
+            thumbImage.Mutate(i => i.Resize(200, height));
+            thumbImage.Save($"{_webHostEnvironment.WebRootPath}/{imageUrl}");
         }
-        private void DeleteOldImageFromDisk(string imageUrl)
+        private void DeleteOldImageFromDisk(string? imageUrl)
         {
-            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images/books", imageUrl);
+            var oldImagePath = $"{_webHostEnvironment.WebRootPath}/{imageUrl}";
 
             if (System.IO.File.Exists(oldImagePath))
-            {
                 System.IO.File.Delete(oldImagePath);
-            }
-        }
-
-        private async Task DeleteOldImageFromCloudinary(string? imagePublicId)
-        {
-            await _cloudinary.DeleteResourcesAsync(imagePublicId);
-        }
-        private string GetThumbnailUrl(string url)
-        {
-            var separator = "image/upload/";
-            var urlParts = url.Split(separator);
-
-            var thumbnailUrl = $"{urlParts[0]}{separator}c_thumb,w_200,g_face/{urlParts[1]}";
-
-            return thumbnailUrl;
         }
     }
 }
