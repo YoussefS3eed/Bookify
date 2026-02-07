@@ -3,9 +3,10 @@
     public interface IBookRepo : IRepository<Book>
     {
         Task<Book?> UpdateAsync(Book book, List<int?> categoryIds);
+        Task<Book?> ToggleStatusAsync(int id, string deletedBy);
         Task<Book?> GetByIdWithCategoriesAsync(int id);
         Task<Book?> GetByIdWithAuthorAndCategoriesAsync(int id);
-        Task<Book?> GetByIdWithAuthorAndCategoriesAndCategoryAsync(int id);
+        IQueryable<Book> GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync();
         Task<IEnumerable<Book>> GetByAuthorIdAsync(int authorId);
     }
 }

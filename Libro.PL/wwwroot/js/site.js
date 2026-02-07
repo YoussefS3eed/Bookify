@@ -164,15 +164,15 @@ $(document).ready(function () {
     // Disable submit button on form submit to prevent multiple submissions
     $('form').on('submit', function () {
         // Use It If you find error when you submit form for first time with TinyMCE
-        //if ($('.js-tinymce').length >= 0) {
-        //    $('.js-tinymce').each(function () {
-        //        var content = tinyMCE.get($(this).attr('id')).getContent()
-        //        $(this).val(content);
-        //    });
-        //}
-        //if ($(this).valid())
-        disableSubmitButton();
-    }).validate();
+        if ($('.js-tinymce').length >= 0) {
+            $('.js-tinymce').each(function () {
+                var content = tinyMCE.get($(this).attr('id')).getContent()
+                $(this).val(content);
+            });
+        }
+        if ($(this).valid())
+            disableSubmitButton();
+    });
 
     ////TinyMCE
     function initTinyMCE() {

@@ -1,5 +1,8 @@
 ﻿using Libro.BLL.DTOs;
 using Libro.BLL.DTOs.Book;
+using Libro.BLL.DTOs.Category;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 using System.Net;
 namespace Libro.BLL.Service.Implementation
 {
@@ -45,7 +48,7 @@ namespace Libro.BLL.Service.Implementation
             try
             {
                 var book = await _bookRepo.GetByIdWithAuthorAndCategoriesAsync(id);
-                if (book == null || book.IsDeleted)
+                if (book == null)
                     return new(null, "Book not found", true, HttpStatusCode.NotFound);
 
                 return new(_mapper.Map<BookDTO>(book), null, false);
@@ -61,7 +64,7 @@ namespace Libro.BLL.Service.Implementation
         {
             try
             {
-                var book = await _bookRepo.GetByIdWithAuthorAndCategoriesAndCategoryAsync(id);
+                var book = await _bookRepo.GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync().SingleOrDefaultAsync(b => b.Id == id);
                 if (book == null)
                     return new(null, "Book not found", true, HttpStatusCode.NotFound);
                 var maped = _mapper.Map<BookDTO>(book);
@@ -73,7 +76,19 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, $"Error retrieving book: {ex.Message}", true, HttpStatusCode.InternalServerError);
             }
         }
+        public async Task<(Response<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection)
+        {
+            IQueryable<Book> books = _bookRepo.GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync();
+            if (!string.IsNullOrEmpty(searchValue))
+                books = books.Where(b => b.Title.Contains(searchValue) || b.Author!.Name.Contains(searchValue));
 
+            var totalRecords = await books.CountAsync();
+            books = books.OrderBy($"{sortColumn} {sortColumnDirection}");
+            var data = books.Skip(skip).Take(pageSize).ToList();
+
+            var dtos = _mapper.Map<IEnumerable<BookDTO>>(data);
+            return (new(dtos, null, false), totalRecords);
+        }
         public async Task<Response<IEnumerable<BookDTO>>> GetAllAsync()
         {
             var books = await _bookRepo.GetAllAsync(b => !b.IsDeleted);
@@ -122,16 +137,25 @@ namespace Libro.BLL.Service.Implementation
             var resultDto = _mapper.Map<BookDTO>(updatedBook);
             return new(resultDto, null, false);
         }
-        public async Task<Response<bool>> ToggleStatusAsync(int id, string deletedBy)
+        public async Task<Response<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy)
         {
-            var book = await _bookRepo.GetByIdAsync(id);
-            if (book == null)
-                return new Response<bool>(false, "Book not found", true, HttpStatusCode.NotFound);
+            try
+            {
+                var book = await _bookRepo.GetByIdAsync(bookId);
+                if (book == null)
+                    return new(null, "Book not found.", true, HttpStatusCode.NotFound);
 
-            book.ToggleStatus(deletedBy);
-            await _bookRepo.SaveChangesAsync();
+                var result = await _bookRepo.ToggleStatusAsync(book.Id, deletedBy);
+                if (result == null)
+                    return new(null, "Database error.", true, HttpStatusCode.BadRequest);
 
-            return new Response<bool>(true, null, false);
+                return new(_mapper.Map<BookDTO>(result), null, false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling status for book {Id}", bookId);
+                return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
+            }
         }
         public async Task<Response<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync()
         {
@@ -161,7 +185,6 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, $"Error retrieving categories: {ex.Message}", true, HttpStatusCode.InternalServerError);
             }
         }
-
         public async Task<bool> IsAllowed(int Id, string Title, int AuthorId)
         {
             var book = await _bookRepo.GetSingleOrDefaultAsync(b => b.Title == Title && b.AuthorId == AuthorId);

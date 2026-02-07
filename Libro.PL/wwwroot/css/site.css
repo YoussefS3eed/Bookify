@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -22,3 +22,50 @@ body {
     padding-bottom: 0.225rem;
 }
 /* End Override theme */
+
+/* Start Custom Styles */
+
+.dt-spinner + div {
+    display: none !important;
+}
+
+.h-70px {
+    height: 70px !important;
+}
+
+/* Solve Last Elemnt action in the table z-index*/
+.animate__animated {
+    animation-fill-mode: none !important;
+}
+
+/* End Custom Styles */
+
+
+
+
+
+/*#region Action Problem with arrow */
+
+/* حل لمشكلة زر Actions */
+/*.btn.btn-light.btn-active-light-primary.btn-sm {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    max-width: 80px !important;
+}*/
+
+/* تأكد أن SVG تكون في نفس السطر */
+/*.btn .svg-icon {
+    display: inline-block !important;
+    margin-left: 4px !important;
+    flex-shrink: 0 !important;
+}*/
+
+/* تأكد من عرض العمود */
+/*#Books th:nth-child(9),
+#Books td:nth-child(9) {
+    min-width: 120px !important;
+    width: 120px !important;
+}*/
+
+/*#endregion */

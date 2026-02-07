@@ -3,6 +3,7 @@ using CloudinaryDotNet;
 using Libro.BLL.DTOs.Book;
 using Libro.DAL.Entities;
 using Libro.PL.Settings;
+using Libro.PL.ViewModels.Author;
 using Libro.PL.ViewModels.Book;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,28 @@ namespace Libro.PL.Controllers
         public async Task<IActionResult> Index()
         {
             return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetBooks()
+        {
+            var skip = int.Parse(Request.Form["start"]!);
+            var pageSize = int.Parse(Request.Form["length"]!);
+
+            var searchValue = Request.Form["search[value]"];
+
+            var sortColumnIndex = Request.Form["order[0][column]"];
+            var sortColumn = Request.Form[$"columns[{sortColumnIndex}][name]"];
+            var sortColumnDirection = Request.Form["order[0][dir]"];
+
+            var (books, recordsTotal) = await _bookService.GetBooks(skip, pageSize, searchValue, sortColumn, sortColumnDirection);
+
+            if (books is null || books.Result is null)
+                return NotFound();
+
+
+            var data = _mapper.Map<IEnumerable<BookViewModel>>(books.Result);
+            var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data };
+            return Ok(jsonData);
         }
         public async Task<IActionResult> Details(int id)
         {
@@ -177,6 +200,33 @@ namespace Libro.PL.Controllers
             return RedirectToAction(nameof(Details), new { id = result.Result!.Id });
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ToggleStatus(int id)
+        //{
+        //    var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
+
+        //    if (result.HasErrorMessage)
+        //    {
+        //        TempData["Error"] = result.ErrorMessage;
+        //    }
+        //    else
+        //    {
+        //        TempData["Success"] = "Book status updated successfully";
+        //    }
+
+        //    return Ok();
+        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
+            if (result.HasErrorMessage)
+                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            
+            return Ok();
+        }
         public async Task<IActionResult> AllowItem(BookFormViewModel model)
         {
             return Json(await _bookService.IsAllowed(model.Id, model.Title, model.AuthorId));
@@ -241,20 +291,3 @@ namespace Libro.PL.Controllers
 }
 
 
-//[HttpPost]
-//[ValidateAntiForgeryToken]
-//public async Task<IActionResult> ToggleStatus(int id)
-//{
-//    var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
-
-//    if (result.HasErrorMessage)
-//    {
-//        TempData["Error"] = result.ErrorMessage;
-//    }
-//    else
-//    {
-//        TempData["Success"] = "Book status updated successfully";
-//    }
-
-//    return RedirectToAction(nameof(Index));
-//}

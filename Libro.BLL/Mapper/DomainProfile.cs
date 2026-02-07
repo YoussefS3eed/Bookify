@@ -42,12 +42,17 @@ namespace Libro.BlL.Mapper
 
             CreateMap<UpdateBookDTO, Book>();
             CreateMap<Book, BookDTO>()
-                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Name))
-                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.AuthorName,
+                opt => opt.MapFrom(src => src.Author != null ? src.Author.Name : string.Empty))
+            .ForMember(dest => dest.CategoryIds,
+                opt => opt.MapFrom(src =>
                     src.Categories.Select(c => c.CategoryId).ToList()))
-                .ForMember(dest => dest.CategoryNames, opt => opt.MapFrom(src =>
-                    src.Categories.Select(c => c.Category!.Name).ToList()));
-
+            .ForMember(dest => dest.CategoryNames,
+                opt => opt.MapFrom(src =>
+                    src.Categories
+                        .Where(c => c.Category != null)
+                        .Select(c => c.Category!.Name)
+                        .ToList()));
 
         }
     }

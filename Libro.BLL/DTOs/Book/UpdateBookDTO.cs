@@ -18,7 +18,7 @@
         [MaxLength(50), Required]
         public string Hall { get; set; } = null!;
         public bool IsAvailableForRental { get; set; }
-        [MaxLength(2000), Required]
+        [MaxLength(5000), Required]
         public string Description { get; set; } = null!;
         public List<int?> CategoryIds { get; set; } = new();
         [Required]

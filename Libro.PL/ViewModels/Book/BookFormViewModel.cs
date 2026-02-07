@@ -35,7 +35,7 @@ namespace Libro.PL.ViewModels.Book
         [Display(Name = "Is available for rental?")]
         public bool IsAvailableForRental { get; set; }
 
-        [MaxLength(2000, ErrorMessage = Errors.MaxLength), Required]
+        [MaxLength(5000, ErrorMessage = Errors.MaxLength), Required]
         public string Description { get; set; } = null!;
 
         [Display(Name = "Categories")]

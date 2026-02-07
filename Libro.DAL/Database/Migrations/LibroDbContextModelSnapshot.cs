@@ -64,7 +64,7 @@ namespace Libro.DAL.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("Libro.DAL.Entities.Book", b =>
@@ -95,8 +95,8 @@ namespace Libro.DAL.Database.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Hall")
                         .IsRequired()
@@ -144,7 +144,7 @@ namespace Libro.DAL.Database.Migrations
                     b.HasIndex("Title", "AuthorId")
                         .IsUnique();
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("Libro.DAL.Entities.BookCategory", b =>
@@ -159,7 +159,7 @@ namespace Libro.DAL.Database.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BookCategories");
+                    b.ToTable("BookCategories", (string)null);
                 });
 
             modelBuilder.Entity("Libro.DAL.Entities.Category", b =>
@@ -204,7 +204,7 @@ namespace Libro.DAL.Database.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

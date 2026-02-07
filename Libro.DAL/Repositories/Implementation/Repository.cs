@@ -7,7 +7,7 @@
         {
             _context = context;
         }
-        public async Task<bool> SaveChangesAsync()
+        protected async Task<bool> SaveChangesAsync()
             => await _context.SaveChangesAsync() > 0;
         public async Task<T?> AddAsync(T entity)
         {

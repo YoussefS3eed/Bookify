@@ -1,4 +1,6 @@
-﻿namespace Libro.DAL.Repositories.Implementation
+﻿using System.Linq;
+
+namespace Libro.DAL.Repositories.Implementation
 {
     public class BookRepo : Repository<Book>, IBookRepo
     {
@@ -54,6 +56,15 @@
             return success > 0 ? book : null;
         }
 
+        public async Task<Book?> ToggleStatusAsync(int id, string deletedBy)
+        {
+            var book = await GetByIdAsync(id);
+            book!.ToggleStatus(deletedBy);
+            if (await SaveChangesAsync())
+                return book;
+            return null;
+        }
+
 
         public async Task<Book?> GetByIdWithCategoriesAsync(int id)
         {
@@ -70,13 +81,13 @@
                 .SingleOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<Book?> GetByIdWithAuthorAndCategoriesAndCategoryAsync(int id)
+        public IQueryable<Book> GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync()
         {
-            return await _context.Books
+            return _context.Books
                 .Include(b => b.Author)
                 .Include(b => b.Categories)
-                .ThenInclude(c => c.Category)
-                .SingleOrDefaultAsync(b => b.Id == id);
+                .ThenInclude(c => c.Category);
+                
         }
 
         public async Task<IEnumerable<Book>> GetByAuthorIdAsync(int authorId)
