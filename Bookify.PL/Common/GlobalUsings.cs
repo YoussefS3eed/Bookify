@@ -1,0 +1,10 @@
+﻿global using AutoMapper;
+global using Bookify.BLL.Service.Abstraction;
+global using Bookify.DAL.Database;
+global using Bookify.PL.Consts;
+global using Bookify.PL.Filters;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.Rendering;
+global using Microsoft.EntityFrameworkCore;
+global using System.ComponentModel.DataAnnotations;

@@ -1,0 +1,16 @@
+﻿global using AutoMapper;
+global using Bookify.BLL.Common.Abstraction;
+global using Bookify.BLL.Common.ResponseResult;
+global using Bookify.BLL.DTOs;
+global using Bookify.BLL.DTOs.Author;
+global using Bookify.BLL.DTOs.Book;
+global using Bookify.BLL.DTOs.BookCopy;
+global using Bookify.BLL.DTOs.Category;
+global using Bookify.BLL.Service.Abstraction;
+global using Bookify.BLL.Service.Implementation;
+global using Bookify.DAL.Entities;
+global using Bookify.DAL.Repositories.Abstraction;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using System.ComponentModel.DataAnnotations;
+global using System.Net;

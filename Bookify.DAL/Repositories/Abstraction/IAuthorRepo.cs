@@ -1,0 +1,11 @@
+﻿using Bookify.DAL.Entities;
+
+namespace Bookify.DAL.Repositories.Abstraction
+{
+    public interface IAuthorRepo : IRepository<Author>
+    {
+        // Command
+        Task<Author?> UpdateAsync(Author author);
+        Task<Author?> ToggleStatusAsync(int id);
+    }
+}

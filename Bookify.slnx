@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Bookify.BLL/Bookify.BLL.csproj">
+    <BuildDependency Project="Bookify.DAL/Bookify.DAL.csproj" />
+  </Project>
+  <Project Path="Bookify.DAL/Bookify.DAL.csproj" />
+  <Project Path="Bookify.PL/Bookify.PL.csproj">
+    <BuildDependency Project="Bookify.BLL/Bookify.BLL.csproj" />
+  </Project>
+</Solution>

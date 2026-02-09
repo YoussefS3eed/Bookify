@@ -1,0 +1,28 @@
+﻿using Bookify.BLL.Common.Abstraction;
+using Bookify.BLL.Mapper;
+using Bookify.BLL.Service.Abstraction;
+using Bookify.BLL.Service.Implementation;
+
+namespace Bookify.BLL.Common
+{
+    public static class ModularBusinessLogicLayer
+    {
+        public static IServiceCollection AddBusinessLogicLayerInPL(this IServiceCollection services)
+        {
+            services.AddScoped<CategoryService>();
+            services.AddScoped<IUniqueNameValidator, CategoryService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
+            services.AddScoped<AuthorService>();
+            services.AddScoped<IUniqueNameValidator, AuthorService>();
+            services.AddScoped<IAuthorService, AuthorService>();
+
+            services.AddScoped<IBookService, BookService>();
+
+            services.AddScoped<IBookCopyService, BookCopyService>();
+
+            services.AddAutoMapper(x => x.AddProfile<DomainProfile>());
+            return services;
+        }
+    }
+}
