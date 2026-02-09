@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using UoN.ExpressiveAnnotations.NetCore.Attributes;
+﻿using UoN.ExpressiveAnnotations.NetCore.Attributes;
 
 namespace Libro.PL.ViewModels.Book
 {

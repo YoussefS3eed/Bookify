@@ -1,14 +1,20 @@
-﻿@model AuthorViewModel
+﻿@using Libro.PL.ViewModels.BookCopy
+@model BookCopyViewModel
 
 <tr>
-    <td>@Model.Name</td>
+    <td>@Model.SerialNumber</td>
+    <td>@Model.EditionNumber</td>
+    <td>
+        <span class="badge badge-light-@(Model.IsAvailableForRental ? "success" : "warning")">
+            @(Model.IsAvailableForRental ? "Available" : "Not Available")
+        </span>
+    </td>
     <td>
         <span class="badge badge-light-@(Model.IsDeleted ? "danger" : "success") js-status">
             @(Model.IsDeleted ? "Deleted" : "Available")
         </span>
     </td>
     <td>@Model.CreatedOn</td>
-    <td class="js-updated-on">@Model.UpdatedOn</td>
     <td class="text-end">
         <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
             Actions
@@ -24,7 +30,7 @@
             <!--begin::Menu item-->
             <div class="menu-item px-3">
                 <a href="javascript:;" class="menu-link px-3 js-render-modal"
-                   data-title="Edit Author" data-url="/Authors/Edit/@Model.Id"
+                   data-title="Edit Copy" data-url="/BookCopies/Edit/@Model.Id"
                    data-update="true">
                     Edit
                 </a>
@@ -33,7 +39,7 @@
             <!--begin::Menu item-->
             <div class="menu-item px-3">
                 <a href="javascript:;" class="menu-link flex-stack px-3 js-toggle-status"
-                   data-url="/Authors/ToggleStatus/@Model.Id">
+                   data-url="/BookCopies/ToggleStatus/@Model.Id">
                     Toggle Status
                 </a>
             </div>

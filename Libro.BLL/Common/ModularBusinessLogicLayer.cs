@@ -15,6 +15,8 @@ namespace Libro.BLL.Common
 
             services.AddScoped<IBookService, BookService>();
 
+            services.AddScoped<IBookCopyService, BookCopyService>();
+
             services.AddAutoMapper(x => x.AddProfile<DomainProfile>());
             return services;
         }

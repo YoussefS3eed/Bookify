@@ -7,6 +7,7 @@
         Task<Book?> GetByIdWithCategoriesAsync(int id);
         Task<Book?> GetByIdWithAuthorAndCategoriesAsync(int id);
         IQueryable<Book> GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync();
+        Task<Book?> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id);
         Task<IEnumerable<Book>> GetByAuthorIdAsync(int authorId);
     }
 }

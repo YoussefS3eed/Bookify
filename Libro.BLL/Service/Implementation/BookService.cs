@@ -1,9 +1,5 @@
-﻿using Libro.BLL.DTOs;
-using Libro.BLL.DTOs.Book;
-using Libro.BLL.DTOs.Category;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System.Net;
 namespace Libro.BLL.Service.Implementation
 {
     public class BookService : IBookService
@@ -60,11 +56,11 @@ namespace Libro.BLL.Service.Implementation
             }
         }
 
-        public async Task<Response<BookDTO>> GetByIdWithAuthorAndCategoriesAndCategoryAsync(int id)
+        public async Task<Response<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id)
         {
             try
             {
-                var book = await _bookRepo.GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync().SingleOrDefaultAsync(b => b.Id == id);
+                var book = await _bookRepo.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
                 if (book == null)
                     return new(null, "Book not found", true, HttpStatusCode.NotFound);
                 var maped = _mapper.Map<BookDTO>(book);

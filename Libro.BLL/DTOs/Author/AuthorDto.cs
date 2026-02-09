@@ -1,6 +1,6 @@
 ﻿namespace Libro.BLL.DTOs.Author
 {
-    public class AuthorDto
+    public class AuthorDTO
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

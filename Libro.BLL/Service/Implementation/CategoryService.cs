@@ -1,7 +1,4 @@
-﻿using Libro.BLL.DTOs.Category;
-using System.Net;
-
-namespace Libro.BLL.Service.Implementation
+﻿namespace Libro.BLL.Service.Implementation
 {
     public class CategoryService : ICategoryService, IUniqueNameValidator
     {
@@ -14,7 +11,7 @@ namespace Libro.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<CategoryDto>> CreateAsync(CreateCategoryDTO dto)
+        public async Task<Response<CategoryDTO>> CreateAsync(CreateCategoryDTO dto)
         {
             try
             {
@@ -30,7 +27,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Failed to create category in database.", true, HttpStatusCode.InternalServerError);
 
-                return new(_mapper.Map<CategoryDto>(result), null, false);
+                return new(_mapper.Map<CategoryDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -38,7 +35,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<CategoryDto>> UpdateAsync(UpdateCategoryDTO dto)
+        public async Task<Response<CategoryDTO>> UpdateAsync(UpdateCategoryDTO dto)
         {
             try
             {
@@ -58,7 +55,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Database error.", true, HttpStatusCode.BadRequest);
 
-                return new(_mapper.Map<CategoryDto>(result), null, false);
+                return new(_mapper.Map<CategoryDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -66,7 +63,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<CategoryDto>> ToggleStatusAsync(int categoryId)
+        public async Task<Response<CategoryDTO>> ToggleStatusAsync(int categoryId)
         {
             try
             {
@@ -78,7 +75,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Database error.", true, HttpStatusCode.BadRequest);
 
-                return new(_mapper.Map<CategoryDto>(result), null, false);
+                return new(_mapper.Map<CategoryDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -86,7 +83,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<CategoryDto>> GetByIdAsync(int categoryId)
+        public async Task<Response<CategoryDTO>> GetByIdAsync(int categoryId)
         {
             try
             {
@@ -94,7 +91,7 @@ namespace Libro.BLL.Service.Implementation
                 if (category == null)
                     return new(null, "Category not found.", true, HttpStatusCode.NotFound);
 
-                return new(_mapper.Map<CategoryDto>(category), null, false);
+                return new(_mapper.Map<CategoryDTO>(category), null, false);
             }
             catch (Exception ex)
             {
@@ -102,12 +99,12 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Could not load category.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<IEnumerable<CategoryDto>>> GetAllAsync()
+        public async Task<Response<IEnumerable<CategoryDTO>>> GetAllAsync()
         {
             try
             {
                 var categories = await _categoryRepo.GetAllAsync();
-                return new(_mapper.Map<IEnumerable<CategoryDto>>(categories), null, false);
+                return new(_mapper.Map<IEnumerable<CategoryDTO>>(categories), null, false);
             }
             catch (Exception ex)
             {
@@ -115,12 +112,12 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Could not load categories.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<IEnumerable<CategoryDto>>> GetAllNotActiveAsync()
+        public async Task<Response<IEnumerable<CategoryDTO>>> GetAllNotActiveAsync()
         {
             try
             {
                 var categories = await _categoryRepo.GetAllAsync(c => c.IsDeleted);
-                return new(_mapper.Map<IEnumerable<CategoryDto>>(categories), null, false);
+                return new(_mapper.Map<IEnumerable<CategoryDTO>>(categories), null, false);
             }
             catch (Exception ex)
             {

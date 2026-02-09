@@ -1,9 +1,4 @@
-﻿using Libro.BLL.DTOs;
-using Libro.BLL.DTOs.Author;
-using Libro.BLL.DTOs.Book;
-using Libro.BLL.DTOs.Category;
-
-namespace Libro.BlL.Mapper
+﻿namespace Libro.BlL.Mapper
 {
     public class DomainProfile : Profile
     {
@@ -13,7 +8,7 @@ namespace Libro.BlL.Mapper
             // Category Mappings
             CreateMap<CreateCategoryDTO, Category>();
             CreateMap<UpdateCategoryDTO, Category>();
-            CreateMap<Category, CategoryDto>();
+            CreateMap<Category, CategoryDTO>();
             CreateMap<Category, SelectListItemDTO>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
@@ -22,7 +17,7 @@ namespace Libro.BlL.Mapper
             // Author Mappings
             CreateMap<CreateAuthorDTO, Author>();
             CreateMap<UpdateAuthorDTO, Author>();
-            CreateMap<Author, AuthorDto>();
+            CreateMap<Author, AuthorDTO>();
             CreateMap<Author, SelectListItemDTO>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
@@ -41,6 +36,7 @@ namespace Libro.BlL.Mapper
                 });
 
             CreateMap<UpdateBookDTO, Book>();
+
             CreateMap<Book, BookDTO>()
             .ForMember(dest => dest.AuthorName,
                 opt => opt.MapFrom(src => src.Author != null ? src.Author.Name : string.Empty))
@@ -54,6 +50,11 @@ namespace Libro.BlL.Mapper
                         .Select(c => c.Category!.Name)
                         .ToList()));
 
+            CreateMap<BookCopy, BookCopyDTO>()
+                .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title));
+
+
+            CreateMap<UpdateBookCopyDTO, BookCopy>();
         }
     }
 }

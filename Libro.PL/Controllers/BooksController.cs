@@ -1,12 +1,6 @@
-﻿using AutoMapper;
-using CloudinaryDotNet;
-using Libro.BLL.DTOs.Book;
-using Libro.DAL.Entities;
+﻿using Libro.BLL.DTOs.Book;
 using Libro.PL.Settings;
-using Libro.PL.ViewModels.Author;
 using Libro.PL.ViewModels.Book;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
@@ -62,7 +56,7 @@ namespace Libro.PL.Controllers
         public async Task<IActionResult> Details(int id)
         {
 
-            var book = await _bookService.GetByIdWithAuthorAndCategoriesAndCategoryAsync(id);
+            var book = await _bookService.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
             if (book is null || book.Result is null)
                 return NotFound();
 
@@ -224,7 +218,7 @@ namespace Libro.PL.Controllers
             var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
             if (result.HasErrorMessage)
                 return StatusCode((int)result.StatusCode, result.ErrorMessage);
-            
+
             return Ok();
         }
         public async Task<IActionResult> AllowItem(BookFormViewModel model)

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Libro.BLL.DTOs.Category;
+﻿using Libro.BLL.DTOs.Category;
 using Libro.PL.ViewModels.Category;
 
 

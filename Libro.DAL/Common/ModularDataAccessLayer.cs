@@ -9,6 +9,7 @@ namespace Libro.DAL.Common
             services.AddScoped<IAuthorRepo, AuthorRepo>();
             services.AddScoped<ICategoryRepo, CategoryRepo>();
             services.AddScoped<IBookRepo, BookRepo>();
+            services.AddScoped<IBookCopyRepo, BookCopyRepo>();
             return services;
         }
     }

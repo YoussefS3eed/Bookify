@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Libro.BLL.DTOs.Author;
+﻿using Libro.BLL.DTOs.Author;
 using Libro.PL.ViewModels.Author;
 namespace Libro.PL.Controllers
 {

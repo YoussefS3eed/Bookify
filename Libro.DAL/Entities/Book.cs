@@ -52,6 +52,9 @@
         private readonly List<BookCategory> _categories = new();
         public IReadOnlyCollection<BookCategory> Categories => _categories.AsReadOnly();
 
+        private readonly List<BookCopy> _bookCopies = new();
+        public ICollection<BookCopy> Copies => _bookCopies;
+
         public bool Update(string title, int authorId, string publisher, DateTime publishingDate,
                     string hall, bool isAvailableForRental, string description,
                     string? imageUrl, string? imageThumbnailUrl, string? imagePublicId, string updatedBy, IEnumerable<int?> categoryIds)
@@ -129,6 +132,13 @@
                 return;
 
             _categories.Add(new BookCategory(categoryId));
+        }
+        public void AddCopy(int BookId)
+        {
+            if (_bookCopies.Any(c => c.BookId == BookId))
+                return;
+
+            _bookCopies.Add(new BookCopy(BookId));
         }
 
         public void ToggleStatus(string actionBy)

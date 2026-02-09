@@ -1,4 +1,6 @@
-﻿namespace Libro.PL.ViewModels.Book
+﻿using Libro.PL.ViewModels.BookCopy;
+
+namespace Libro.PL.ViewModels.Book
 {
     public class BookViewModel
     {
@@ -23,6 +25,7 @@
         public string Description { get; set; } = null!;
 
         public IEnumerable<string> Categories { get; set; } = null!;
+        public IEnumerable<BookCopyViewModel> Copies { get; set; } = null!;
 
         public bool IsDeleted { get; set; }
 

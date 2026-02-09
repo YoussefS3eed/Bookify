@@ -1,7 +1,4 @@
-﻿using Libro.BLL.DTOs.Author;
-using System.Net;
-
-namespace Libro.BLL.Service.Implementation
+﻿namespace Libro.BLL.Service.Implementation
 {
     public class AuthorService : IAuthorService, IUniqueNameValidator
     {
@@ -14,7 +11,7 @@ namespace Libro.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<AuthorDto>> CreateAsync(CreateAuthorDTO dto)
+        public async Task<Response<AuthorDTO>> CreateAsync(CreateAuthorDTO dto)
         {
             try
             {
@@ -30,7 +27,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Failed to create author in database.", true, HttpStatusCode.InternalServerError);
 
-                return new(_mapper.Map<AuthorDto>(result), null, false);
+                return new(_mapper.Map<AuthorDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -38,7 +35,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<AuthorDto>> UpdateAsync(UpdateAuthorDTO dto)
+        public async Task<Response<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto)
         {
             try
             {
@@ -58,7 +55,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Database error.", true, HttpStatusCode.BadRequest);
 
-                return new(_mapper.Map<AuthorDto>(result), null, false);
+                return new(_mapper.Map<AuthorDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -66,7 +63,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<AuthorDto>> ToggleStatusAsync(int authorId)
+        public async Task<Response<AuthorDTO>> ToggleStatusAsync(int authorId)
         {
             try
             {
@@ -79,7 +76,7 @@ namespace Libro.BLL.Service.Implementation
                 if (result == null)
                     return new(null, "Database error.", true, HttpStatusCode.BadRequest);
 
-                return new(_mapper.Map<AuthorDto>(result), null, false);
+                return new(_mapper.Map<AuthorDTO>(result), null, false);
             }
             catch (Exception ex)
             {
@@ -87,7 +84,7 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<AuthorDto>> GetByIdAsync(int authorId)
+        public async Task<Response<AuthorDTO>> GetByIdAsync(int authorId)
         {
             try
             {
@@ -95,7 +92,7 @@ namespace Libro.BLL.Service.Implementation
                 if (author == null)
                     return new(null, "Author not found.", true, HttpStatusCode.NotFound);
 
-                return new(_mapper.Map<AuthorDto>(author), null, false);
+                return new(_mapper.Map<AuthorDTO>(author), null, false);
             }
             catch (Exception ex)
             {
@@ -103,12 +100,12 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Could not load author.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<IEnumerable<AuthorDto>>> GetAllAsync()
+        public async Task<Response<IEnumerable<AuthorDTO>>> GetAllAsync()
         {
             try
             {
                 var authors = await _authorRepo.GetAllAsync();
-                return new(_mapper.Map<IEnumerable<AuthorDto>>(authors), null, false);
+                return new(_mapper.Map<IEnumerable<AuthorDTO>>(authors), null, false);
             }
             catch (Exception ex)
             {
@@ -116,12 +113,12 @@ namespace Libro.BLL.Service.Implementation
                 return new(null, "Could not load authors.", true);
             }
         }
-        public async Task<Response<IEnumerable<AuthorDto>>> GetAllNotActiveAsync()
+        public async Task<Response<IEnumerable<AuthorDTO>>> GetAllNotActiveAsync()
         {
             try
             {
                 var authors = await _authorRepo.GetAllAsync(a => a.IsDeleted);
-                return new(_mapper.Map<IEnumerable<AuthorDto>>(authors), null, false);
+                return new(_mapper.Map<IEnumerable<AuthorDTO>>(authors), null, false);
             }
             catch (Exception ex)
             {
