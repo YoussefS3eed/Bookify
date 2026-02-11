@@ -1,6 +1,4 @@
-﻿using Bookify.PL.Consts;
-
-namespace Bookify.PL.ViewModels.Author
+﻿namespace Bookify.PL.ViewModels.Author
 {
     public class AuthorFormViewModel
     {

@@ -1,5 +1,4 @@
-﻿using Bookify.DAL.Repositories.Abstraction;
-using Bookify.DAL.Repositories.Implementation;
+﻿using Bookify.DAL.Repositories.Implementation;
 
 namespace Bookify.DAL.Common
 {

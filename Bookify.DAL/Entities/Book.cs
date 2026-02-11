@@ -1,12 +1,10 @@
-﻿using Bookify.DAL.Entities.Base;
-
-namespace Bookify.DAL.Entities
+﻿namespace Bookify.DAL.Entities
 {
     public class Book : BaseEntity
     {
         protected Book()
         {
-            CreatedBy = "Admin from Protected Book Ctor!";
+            //CreatedBy = "Admin from Protected Book Ctor!";
         }
 
         public Book(
@@ -17,7 +15,7 @@ namespace Bookify.DAL.Entities
             string hall,
             bool isAvailableForRental,
             string description,
-            string createdBy,
+            ApplicationUser createdBy,
             IEnumerable<int>? categoryIds = null)
         {
             Title = title;
@@ -89,8 +87,8 @@ namespace Bookify.DAL.Entities
 
             if (changed)
             {
-                UpdatedOn = DateTime.UtcNow;
-                UpdatedBy = updatedBy;
+                LastUpdatedOn = DateTime.UtcNow;
+                LastUpdatedById = updatedBy;
             }
             return changed;
         }
@@ -101,8 +99,8 @@ namespace Bookify.DAL.Entities
                 return;
 
             ImageUrl = imageUrl;
-            UpdatedOn = DateTime.UtcNow;
-            UpdatedBy = updatedBy;
+            LastUpdatedOn = DateTime.UtcNow;
+            LastUpdatedById = updatedBy;
         }
 
         private bool UpdateCategories(IEnumerable<int?> categoryIds)
@@ -147,11 +145,9 @@ namespace Bookify.DAL.Entities
         {
             IsDeleted = !IsDeleted;
 
-            DeletedBy = IsDeleted ? actionBy : null;
-            DeletedOn = IsDeleted ? DateTime.UtcNow : null;
 
-            UpdatedOn = DateTime.UtcNow;
-            UpdatedBy = actionBy;
+            LastUpdatedOn = DateTime.UtcNow;
+            LastUpdatedById = actionBy;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Bookify.BLL.Common.Abstraction;
-
-namespace Bookify.BLL.Common.Validation
+﻿namespace Bookify.BLL.Common.Validation
 {
     public class UniqueNameAttribute : ValidationAttribute
     {

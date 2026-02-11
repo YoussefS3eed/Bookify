@@ -1,13 +1,13 @@
 using Bookify.BLL.Common;
+using Bookify.DAL.Common;
 using Bookify.PL.Mapper;
 using Bookify.PL.Settings;
-using Bookify.DAL.Common;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 namespace Bookify.PL
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -18,15 +18,18 @@ namespace Bookify.PL
 
             // ------------------- Add Connection String and DbContext -------------------
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<LibroDbContext>(options =>
+            builder.Services.AddDbContext<BookifyDbContext>(options =>
             {
                 options.UseSqlServer(connectionString);
             });
-            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
             // ------------------- Identity -------------------
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<LibroDbContext>();
+            //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<BookifyDbContext>();
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<BookifyDbContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
 
             // ------------------- Dependecy Injection -------------------
             builder.Services.AddDataAccessLayerInPL();
@@ -55,7 +58,18 @@ namespace Bookify.PL
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            using var scope = app.Services.CreateScope();
+
+            var roleManager =
+                scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var userManager =
+                scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            await PipelineDataAccessLayer.SeedDataAsync(roleManager, userManager);
 
             app.MapStaticAssets();
             app.MapControllerRoute(

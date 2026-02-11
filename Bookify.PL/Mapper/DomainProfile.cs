@@ -3,10 +3,12 @@ using Bookify.BLL.DTOs.Author;
 using Bookify.BLL.DTOs.Book;
 using Bookify.BLL.DTOs.BookCopy;
 using Bookify.BLL.DTOs.Category;
+using Bookify.BLL.DTOs.User;
 using Bookify.PL.ViewModels.Author;
 using Bookify.PL.ViewModels.Book;
 using Bookify.PL.ViewModels.BookCopy;
 using Bookify.PL.ViewModels.Category;
+using Bookify.PL.ViewModels.User;
 
 namespace Bookify.PL.Mapper
 {
@@ -16,8 +18,8 @@ namespace Bookify.PL.Mapper
         {
             CreateMap<CategoryDTO, CategoryFormViewModel>();
             CreateMap<CategoryDTO, CategoryViewModel>();
-            CreateMap<CategoryFormViewModel, CreateCategoryDTO>();
-            CreateMap<CategoryFormViewModel, UpdateCategoryDTO>();
+            CreateMap<CategoryFormViewModel, CategoryCreateDTO>();
+            CreateMap<CategoryFormViewModel, CategoryUpdateDTO>();
 
             CreateMap<AuthorDTO, AuthorFormViewModel>();
             CreateMap<AuthorDTO, AuthorViewModel>();
@@ -34,11 +36,11 @@ namespace Bookify.PL.Mapper
 
 
             // Map from ViewModels to BLL DTOs
-            CreateMap<BookFormViewModel, CreateBookDTO>()
+            CreateMap<BookFormViewModel, BookCreateDTO>()
                 .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.SelectedCategories))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(_ => "System from mapper"));
 
-            CreateMap<BookFormViewModel, UpdateBookDTO>()
+            CreateMap<BookFormViewModel, BookUpdateDTO>()
                 .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.SelectedCategories))
                 .ForMember(dest => dest.UpdatedBy, opt => opt.MapFrom(_ => "System System from mapper"));
 
@@ -50,10 +52,10 @@ namespace Bookify.PL.Mapper
 
             CreateMap<BookCopyDTO, BookCopyViewModel>();
 
-            CreateMap<BookCopyFormViewModel, CreateBookCopyDTO>()
+            CreateMap<BookCopyFormViewModel, BookCopyCreateDTO>()
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(_ => "System from mapper"));
 
-            CreateMap<CreateBookCopyDTO, BookCopyFormViewModel>()
+            CreateMap<BookCopyCreateDTO, BookCopyFormViewModel>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             //BookCopyDTO to  BookCopyFormViewModel
@@ -61,9 +63,17 @@ namespace Bookify.PL.Mapper
                 .ForMember(dest => dest.ShowRentalInput, opt => opt.MapFrom(src => src.Book.IsAvailableForRental));
 
             // BookCopyFormViewModel to UpdateBookCopyDTO
-            CreateMap<BookCopyFormViewModel, UpdateBookCopyDTO>();
+            CreateMap<BookCopyFormViewModel, BookCopyUpdateDTO>();
 
-            // BookCopyDTO to BookCopyViewModel
+            // UserDTO to UserViewModel
+            CreateMap<UserDTO, UserViewModel>();
+
+            CreateMap<UserFormViewModel, UserCreateDTO>();
+
+            CreateMap<UserUpdateDTO, UserFormViewModel>().ReverseMap();
+
+            CreateMap<UserResetPasswordDTO, ResetPasswordFormViewModel>().ReverseMap();
+
         }
     }
 }

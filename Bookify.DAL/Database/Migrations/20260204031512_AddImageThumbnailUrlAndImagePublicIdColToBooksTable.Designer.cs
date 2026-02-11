@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bookify.DAL.Database.Migrations
 {
-    [DbContext(typeof(LibroDbContext))]
+    [DbContext(typeof(BookifyDbContext))]
     [Migration("20260204031512_AddImageThumbnailUrlAndImagePublicIdColToBooksTable")]
     partial class AddImageThumbnailUrlAndImagePublicIdColToBooksTable
     {

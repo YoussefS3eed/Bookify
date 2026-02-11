@@ -1,10 +1,4 @@
-﻿using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs;
-using Bookify.BLL.DTOs.Book;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 namespace Bookify.BLL.Service.Implementation
 {
@@ -98,7 +92,7 @@ namespace Bookify.BLL.Service.Implementation
 
             return new(dtos, null, false);
         }
-        public async Task<Response<BookDTO>> CreateAsync(CreateBookDTO dto)
+        public async Task<Response<BookDTO>> CreateAsync(BookCreateDTO dto)
         {
             try
             {
@@ -122,7 +116,7 @@ namespace Bookify.BLL.Service.Implementation
                 return new(null, $"Error creating book: {ex.Message}", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<BookDTO>> UpdateAsync(UpdateBookDTO dto)
+        public async Task<Response<BookDTO>> UpdateAsync(BookUpdateDTO dto)
         {
             // TODO: Make UnitOfWork And Remake this ys4s chatgpt مراجعة موديل Book
             // Validate Author

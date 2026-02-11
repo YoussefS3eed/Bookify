@@ -1,11 +1,4 @@
-﻿using Bookify.BLL.Common.Abstraction;
-using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs.Category;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.BLL.Service.Implementation
+﻿namespace Bookify.BLL.Service.Implementation
 {
     public class CategoryService : ICategoryService, IUniqueNameValidator
     {
@@ -18,7 +11,7 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<CategoryDTO>> CreateAsync(CreateCategoryDTO dto)
+        public async Task<Response<CategoryDTO>> CreateAsync(CategoryCreateDTO dto)
         {
             try
             {
@@ -42,7 +35,7 @@ namespace Bookify.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<CategoryDTO>> UpdateAsync(UpdateCategoryDTO dto)
+        public async Task<Response<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto)
         {
             try
             {

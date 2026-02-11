@@ -1,6 +1,4 @@
 ﻿using Bookify.BLL.DTOs.Book;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.PL.Consts;
 using Bookify.PL.Settings;
 using Bookify.PL.ViewModels.Book;
 using Microsoft.Extensions.Options;
@@ -93,7 +91,7 @@ namespace Bookify.PL.Controllers
             }
 
 
-            var CreateBookDTO = _mapper.Map<CreateBookDTO>(model);
+            var CreateBookDTO = _mapper.Map<BookCreateDTO>(model);
 
 
             // Call service
@@ -149,7 +147,7 @@ namespace Bookify.PL.Controllers
             var oldImgUrl = book!.Result!.ImageUrl;
             var oldThumbUrl = book!.Result!.ImageThumbnailUrl;
 
-            var updateBookDto = _mapper.Map<UpdateBookDTO>(model);
+            var updateBookDto = _mapper.Map<BookUpdateDTO>(model);
 
             if (model.Image != null)
             {

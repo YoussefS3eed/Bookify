@@ -1,13 +1,9 @@
-﻿using Bookify.DAL.Database;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.DAL.Repositories.Implementation
+﻿namespace Bookify.DAL.Repositories.Implementation
 {
     public class AuthorRepo : Repository<Author>, IAuthorRepo
     {
-        private readonly LibroDbContext _context;
-        public AuthorRepo(LibroDbContext context) : base(context)
+        private readonly BookifyDbContext _context;
+        public AuthorRepo(BookifyDbContext context) : base(context)
         {
             _context = context;
         }
@@ -17,7 +13,7 @@ namespace Bookify.DAL.Repositories.Implementation
             var updatedAuthor = await GetByIdAsync(newAuthor.Id);
             if (updatedAuthor is not null)
             {
-                var isUpdated = updatedAuthor.Update(newAuthor.Name, newAuthor.UpdatedBy! ?? "System");
+                var isUpdated = updatedAuthor.Update(newAuthor.Name, newAuthor.LastUpdatedById! ?? "System");
                 if (isUpdated)
                 {
                     if (await SaveChangesAsync())

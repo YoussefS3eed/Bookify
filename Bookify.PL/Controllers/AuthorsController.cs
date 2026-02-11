@@ -1,5 +1,4 @@
 ﻿using Bookify.BLL.DTOs.Author;
-using Bookify.BLL.Service.Abstraction;
 using Bookify.PL.ViewModels.Author;
 
 namespace Bookify.PL.Controllers

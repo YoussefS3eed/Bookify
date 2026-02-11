@@ -1,6 +1,4 @@
-﻿using Bookify.PL.Consts;
-
-namespace Bookify.PL.ViewModels.BookCopy
+﻿namespace Bookify.PL.ViewModels.BookCopy
 {
     public class BookCopyFormViewModel
     {

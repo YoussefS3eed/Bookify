@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bookify.DAL.Database.Migrations
 {
-    [DbContext(typeof(LibroDbContext))]
+    [DbContext(typeof(BookifyDbContext))]
     [Migration("20260205235622_UpdateBooksTableDescriptionMaxLengthToBe5000")]
     partial class UpdateBooksTableDescriptionMaxLengthToBe5000
     {

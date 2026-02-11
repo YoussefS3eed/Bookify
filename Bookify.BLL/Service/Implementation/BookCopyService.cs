@@ -1,11 +1,4 @@
-﻿using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs.Book;
-using Bookify.BLL.DTOs.BookCopy;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.BLL.Service.Implementation
+﻿namespace Bookify.BLL.Service.Implementation
 {
     public class BookCopyService : IBookCopyService
     {
@@ -18,7 +11,7 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<BookCopyDTO>> CreateAsync(CreateBookCopyDTO dto)
+        public async Task<Response<BookCopyDTO>> CreateAsync(BookCopyCreateDTO dto)
         {
             try
             {
@@ -26,7 +19,7 @@ namespace Bookify.BLL.Service.Implementation
                     return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
 
                 var book = await _bookCopyRepo.GetBookByIdAsync(dto.BookId);
-                var bookCopy = new BookCopy(dto.BookId, dto.EditionNumber, book!.IsAvailableForRental && dto.IsAvailableForRental, dto.CreatedBy ?? "System");
+                var bookCopy = new BookCopy(dto.BookId, dto.EditionNumber, book!.IsAvailableForRental && dto.IsAvailableForRental, new ApplicationUser());
                 var result = await _bookCopyRepo.AddAsync(bookCopy);
 
                 if (result == null)
@@ -40,7 +33,7 @@ namespace Bookify.BLL.Service.Implementation
                 return new(null, "Unexpected error.", true, HttpStatusCode.InternalServerError);
             }
         }
-        public async Task<Response<BookCopyDTO>> UpdateAsync(UpdateBookCopyDTO dto)
+        public async Task<Response<BookCopyDTO>> UpdateAsync(BookCopyUpdateDTO dto)
         {
             try
             {

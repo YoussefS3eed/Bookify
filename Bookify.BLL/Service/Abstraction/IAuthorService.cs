@@ -1,7 +1,4 @@
-﻿using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs.Author;
-
-namespace Bookify.BLL.Service.Abstraction
+﻿namespace Bookify.BLL.Service.Abstraction
 {
     public interface IAuthorService
     {

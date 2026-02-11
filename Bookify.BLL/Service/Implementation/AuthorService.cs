@@ -1,11 +1,4 @@
-﻿using Bookify.BLL.Common.Abstraction;
-using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs.Author;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.BLL.Service.Implementation
+﻿namespace Bookify.BLL.Service.Implementation
 {
     public class AuthorService : IAuthorService, IUniqueNameValidator
     {
@@ -74,7 +67,6 @@ namespace Bookify.BLL.Service.Implementation
         {
             try
             {
-
                 var author = await _authorRepo.GetByIdAsync(authorId);
                 if (author == null)
                     return new(null, "Author not found.", true, HttpStatusCode.NotFound);

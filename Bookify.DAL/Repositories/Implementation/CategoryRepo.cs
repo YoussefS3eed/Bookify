@@ -1,13 +1,9 @@
-﻿using Bookify.DAL.Database;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.DAL.Repositories.Implementation
+﻿namespace Bookify.DAL.Repositories.Implementation
 {
     public class CategoryRepo : Repository<Category>, ICategoryRepo
     {
-        private readonly LibroDbContext _context;
-        public CategoryRepo(LibroDbContext context) : base(context)
+        private readonly BookifyDbContext _context;
+        public CategoryRepo(BookifyDbContext context) : base(context)
         {
             _context = context;
         }
@@ -16,7 +12,7 @@ namespace Bookify.DAL.Repositories.Implementation
             var updatedCategory = await GetByIdAsync(newCategory.Id);
             if (updatedCategory is not null)
             {
-                var isUpdated = updatedCategory.Update(newCategory.Name, newCategory.UpdatedBy! ?? "System");
+                var isUpdated = updatedCategory.Update(newCategory.Name, newCategory.LastUpdatedById! ?? "System");
                 if (isUpdated)
                 {
                     if (await SaveChangesAsync())

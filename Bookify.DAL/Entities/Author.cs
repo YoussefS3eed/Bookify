@@ -1,14 +1,12 @@
-﻿using Bookify.DAL.Entities.Base;
-
-namespace Bookify.DAL.Entities
+﻿namespace Bookify.DAL.Entities
 {
     public class Author : BaseEntity
     {
         protected Author()
         {
-            CreatedBy = "Admin from protected Author ctor";
+            //CreatedBy = "Admin from protected Author ctor";
         }
-        public Author(string name, string createdBy)
+        public Author(string name, ApplicationUser createdBy)
         {
             Name = name;
             CreatedBy = createdBy;
@@ -20,8 +18,8 @@ namespace Bookify.DAL.Entities
             if (!string.IsNullOrEmpty(createdBy) && Name != name)
             {
                 Name = name;
-                UpdatedOn = DateTime.UtcNow;
-                UpdatedBy = createdBy;
+                LastUpdatedOn = DateTime.UtcNow;
+                LastUpdatedById = createdBy;
                 return true;
             }
             return false;
@@ -31,9 +29,7 @@ namespace Bookify.DAL.Entities
             if (!string.IsNullOrEmpty(deletedBy))
             {
                 IsDeleted = !IsDeleted;
-                DeletedBy = deletedBy;
-                DeletedOn = DateTime.UtcNow;
-                UpdatedOn = DateTime.UtcNow;
+                LastUpdatedOn = DateTime.UtcNow;
                 return true;
             }
             return false;

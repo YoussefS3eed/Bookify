@@ -1,6 +1,4 @@
-﻿using Bookify.DAL.Entities;
-
-namespace Bookify.DAL.Repositories.Abstraction
+﻿namespace Bookify.DAL.Repositories.Abstraction
 {
     public interface ICategoryRepo : IRepository<Category>
     {

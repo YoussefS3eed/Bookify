@@ -1,6 +1,4 @@
-﻿using Bookify.PL.Consts;
-
-namespace Bookify.PL.ViewModels.Category
+﻿namespace Bookify.PL.ViewModels.Category
 {
     public class CategoryFormViewModel
     {

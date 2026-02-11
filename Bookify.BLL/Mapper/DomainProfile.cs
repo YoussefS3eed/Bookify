@@ -1,9 +1,4 @@
-﻿using Bookify.BLL.DTOs;
-using Bookify.BLL.DTOs.Author;
-using Bookify.BLL.DTOs.Book;
-using Bookify.BLL.DTOs.BookCopy;
-using Bookify.BLL.DTOs.Category;
-using Bookify.DAL.Entities;
+﻿using Bookify.BLL.DTOs.User;
 
 namespace Bookify.BLL.Mapper
 {
@@ -13,8 +8,8 @@ namespace Bookify.BLL.Mapper
 
         {
             // Category Mappings
-            CreateMap<CreateCategoryDTO, Category>();
-            CreateMap<UpdateCategoryDTO, Category>();
+            CreateMap<CategoryCreateDTO, Category>();
+            CreateMap<CategoryUpdateDTO, Category>();
             CreateMap<Category, CategoryDTO>();
             CreateMap<Category, SelectListItemDTO>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
@@ -32,7 +27,7 @@ namespace Bookify.BLL.Mapper
 
 
             // Book Mappings
-            CreateMap<CreateBookDTO, Book>()
+            CreateMap<BookCreateDTO, Book>()
                 .ForMember(dest => dest.Categories, opt => opt.Ignore())
                 .AfterMap((dto, book) =>
                 {
@@ -42,7 +37,7 @@ namespace Bookify.BLL.Mapper
                     }
                 });
 
-            CreateMap<UpdateBookDTO, Book>();
+            CreateMap<BookUpdateDTO, Book>();
 
             CreateMap<Book, BookDTO>()
             .ForMember(dest => dest.AuthorName,
@@ -61,7 +56,10 @@ namespace Bookify.BLL.Mapper
                 .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title));
 
 
-            CreateMap<UpdateBookCopyDTO, BookCopy>();
+            CreateMap<BookCopyUpdateDTO, BookCopy>();
+
+            // Users
+            CreateMap<ApplicationUser, UserDTO>();
         }
     }
 }

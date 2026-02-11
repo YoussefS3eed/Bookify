@@ -1,6 +1,4 @@
-﻿using Bookify.DAL.Entities;
-
-namespace Bookify.DAL.Configurations
+﻿namespace Bookify.DAL.Configurations
 {
     public class BookCategoryConfig : IEntityTypeConfiguration<BookCategory>
     {

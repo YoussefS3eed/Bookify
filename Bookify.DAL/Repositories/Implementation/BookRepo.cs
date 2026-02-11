@@ -1,13 +1,9 @@
-﻿using Bookify.DAL.Database;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.DAL.Repositories.Implementation
+﻿namespace Bookify.DAL.Repositories.Implementation
 {
     public class BookRepo : Repository<Book>, IBookRepo
     {
-        private readonly LibroDbContext _context;
-        public BookRepo(LibroDbContext context) : base(context)
+        private readonly BookifyDbContext _context;
+        public BookRepo(BookifyDbContext context) : base(context)
         {
             _context = context;
         }
@@ -24,7 +20,7 @@ namespace Bookify.DAL.Repositories.Implementation
 
             // 2️⃣ تعديل باستخدام Entity logic
             book.Update(book1.Title, book1.AuthorId, book1.Publisher, book1.PublishingDate, book1.Hall,
-                        book1.IsAvailableForRental, book1.Description, book1.ImageUrl, book1.ImageThumbnailUrl, book1.ImagePublicId, book1.UpdatedBy!, categoryIds);
+                        book1.IsAvailableForRental, book1.Description, book1.ImageUrl, book1.ImageThumbnailUrl, book1.ImagePublicId, book1.LastUpdatedById!, categoryIds);
 
             // 3️⃣ حفظ التغييرات
             var success = await _context.SaveChangesAsync();

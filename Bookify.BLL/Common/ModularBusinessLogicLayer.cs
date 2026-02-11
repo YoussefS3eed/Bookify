@@ -1,7 +1,4 @@
-﻿using Bookify.BLL.Common.Abstraction;
-using Bookify.BLL.Mapper;
-using Bookify.BLL.Service.Abstraction;
-using Bookify.BLL.Service.Implementation;
+﻿using Bookify.BLL.Mapper;
 
 namespace Bookify.BLL.Common
 {
@@ -20,6 +17,7 @@ namespace Bookify.BLL.Common
             services.AddScoped<IBookService, BookService>();
 
             services.AddScoped<IBookCopyService, BookCopyService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddAutoMapper(x => x.AddProfile<DomainProfile>());
             return services;

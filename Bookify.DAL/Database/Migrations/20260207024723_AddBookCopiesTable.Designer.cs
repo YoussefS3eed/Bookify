@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bookify.DAL.Database.Migrations
 {
-    [DbContext(typeof(LibroDbContext))]
+    [DbContext(typeof(BookifyDbContext))]
     [Migration("20260207024723_AddBookCopiesTable")]
     partial class AddBookCopiesTable
     {

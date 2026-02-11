@@ -1,5 +1,4 @@
-﻿using Bookify.PL.Consts;
-using UoN.ExpressiveAnnotations.NetCore.Attributes;
+﻿using UoN.ExpressiveAnnotations.NetCore.Attributes;
 
 namespace Bookify.PL.ViewModels.Book
 {

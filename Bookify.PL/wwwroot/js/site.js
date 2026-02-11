@@ -15,27 +15,16 @@ function showSuccessMessage(message = 'Saved successfully!') {
     });
 }
 
-function showErrorMessage(xhr) {
-    var message = xhr.responseText || 'Something went wrong!';
+function showErrorMessage(message = 'Something went wrong!') {
     Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: message,
+        text: message.responseText !== undefined ? message.responseText : message,
         customClass: {
             confirmButton: "btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary"
         }
     });
 }
-
-//function showErrorMessage(xhr) {
-//    var message = xhr.responseJSON?.message || 'Something went wrong!';
-//    Swal.fire({
-//        icon: 'error',
-//        title: 'Oops...',
-//        html: message,
-//        customClass: { confirmButton: "btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary" }
-//    });
-//}
 
 function disableSubmitButton() {
     $('body :submit').attr('disabled', 'disabled').attr('data-kt-indicator', 'on');
@@ -57,12 +46,22 @@ function onModalSuccess(row) {
     var newRow = $(row);
     datatable.row.add(newRow).draw();
 
-    KTMenu.init();
-    KTMenu.initHandlers();
+    //KTMenu.init();
+    //KTMenu.initHandlers();
 }
 function onModalComplete() {
     $('body :submit').removeAttr('disabled').removeAttr('data-kt-indicator');
 }
+
+
+// ======== Select2 ========
+function applySelect2() {
+    $('.js-select2').select2();
+    $('.js-select2').on('select2:select', function (e) {
+        $('form').not('#SignOut').validate().element('#' + $(this).attr('id'));
+    });
+}
+
 
 // ======== DataTables ========
 var headers = $('th');
@@ -79,7 +78,10 @@ var KTDatatables = function () {
         datatable = $(table).DataTable({
             "info": false,
             'pageLength': 10,
-            "order": [[0, "asc"]]   // ترتيب حسب أول عمود (Id)
+            "order": [[0, "asc"]],   // ترتيب حسب أول عمود
+            "drawCallback": function () {
+                KTMenu.createInstances();
+            }
         });
     }
 
@@ -162,7 +164,7 @@ var KTDatatables = function () {
 // ======== Document Ready ========
 $(document).ready(function () {
     // Disable submit button on form submit to prevent multiple submissions
-    $('form').on('submit', function () {
+    $('form').not('#SignOut').on('submit', function () {
         // Use It If you find error when you submit form for first time with TinyMCE
         if ($('.js-tinymce').length >= 0) {
             $('.js-tinymce').each(function () {
@@ -201,10 +203,7 @@ $(document).ready(function () {
     });
 
     //Select2
-    $('.js-select2').select2();
-    $('.js-select2').on('select2:select', function (e) {
-        $('form').validate().element('#' + $(this).attr('id'));
-    });
+    applySelect2();
 
     //$('#Title').on('keyup change', function () {
     //    $('form').validate().element('#AuthorId');
@@ -255,6 +254,7 @@ $(document).ready(function () {
                 if (form) {
                     modal.find('.modal-body').html(form);
                     $.validator.unobtrusive.parse(modal);
+                    applySelect2();
                 } else {
                     showErrorMessage('Empty response from server.');
                 }
@@ -292,7 +292,6 @@ $(document).ready(function () {
                             status.text(newStatus).toggleClass('badge-light-success badge-light-danger');
                             row.find('.js-updated-on').html(UpdatedOn);
                             row.addClass('animate__animated animate__flash');
-
                             showSuccessMessage();
                         },
                         error: function () {
@@ -302,5 +301,10 @@ $(document).ready(function () {
                 }
             }
         });
+    });
+
+    // Handle signout
+    $('.js-signout').on('click', function () {
+        $('#SignOut').submit()
     });
 });

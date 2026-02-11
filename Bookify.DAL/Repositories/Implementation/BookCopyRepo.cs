@@ -1,13 +1,9 @@
-﻿using Bookify.DAL.Database;
-using Bookify.DAL.Entities;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.DAL.Repositories.Implementation
+﻿namespace Bookify.DAL.Repositories.Implementation
 {
     public class BookCopyRepo : Repository<BookCopy>, IBookCopyRepo
     {
-        private readonly LibroDbContext _context;
-        public BookCopyRepo(LibroDbContext context) : base(context)
+        private readonly BookifyDbContext _context;
+        public BookCopyRepo(BookifyDbContext context) : base(context)
         {
             _context = context;
         }
@@ -17,7 +13,7 @@ namespace Bookify.DAL.Repositories.Implementation
             if (updatedBookCopy is not null)
             {
                 var copy = await GetByIdWithBookIncludesAsync(newBookCopy.Id);
-                updatedBookCopy.Update(copy!.Book!.IsAvailableForRental && newBookCopy.IsAvailableForRental, newBookCopy.EditionNumber, newBookCopy.UpdatedBy!);
+                updatedBookCopy.Update(copy!.Book!.IsAvailableForRental && newBookCopy.IsAvailableForRental, newBookCopy.EditionNumber, newBookCopy.LastUpdatedById!);
 
                 if (await SaveChangesAsync())
                     return updatedBookCopy;

@@ -1,12 +1,9 @@
-﻿using Bookify.BLL.Common.ResponseResult;
-using Bookify.BLL.DTOs.Category;
-
-namespace Bookify.BLL.Service.Abstraction
+﻿namespace Bookify.BLL.Service.Abstraction
 {
     public interface ICategoryService
     {
-        Task<Response<CategoryDTO>> CreateAsync(CreateCategoryDTO dto);
-        Task<Response<CategoryDTO>> UpdateAsync(UpdateCategoryDTO dto);
+        Task<Response<CategoryDTO>> CreateAsync(CategoryCreateDTO dto);
+        Task<Response<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto);
         Task<Response<CategoryDTO>> ToggleStatusAsync(int categoryId);
         Task<Response<CategoryDTO>> GetByIdAsync(int categoryId);
         Task<Response<IEnumerable<CategoryDTO>>> GetAllAsync();

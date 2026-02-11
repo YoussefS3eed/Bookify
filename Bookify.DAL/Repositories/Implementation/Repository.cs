@@ -1,12 +1,9 @@
-﻿using Bookify.DAL.Database;
-using Bookify.DAL.Repositories.Abstraction;
-
-namespace Bookify.DAL.Repositories.Implementation
+﻿namespace Bookify.DAL.Repositories.Implementation
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly LibroDbContext _context;
-        public Repository(LibroDbContext context)
+        private readonly BookifyDbContext _context;
+        public Repository(BookifyDbContext context)
         {
             _context = context;
         }

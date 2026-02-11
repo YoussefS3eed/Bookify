@@ -1,8 +1,10 @@
 using Bookify.PL.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
 
 namespace Bookify.PL.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -11,7 +13,6 @@ namespace Bookify.PL.Controllers
         {
             _logger = logger;
         }
-
         public IActionResult Index()
         {
             return View();

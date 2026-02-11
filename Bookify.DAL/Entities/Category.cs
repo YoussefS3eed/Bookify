@@ -1,14 +1,12 @@
-﻿using Bookify.DAL.Entities.Base;
-
-namespace Bookify.DAL.Entities
+﻿namespace Bookify.DAL.Entities
 {
     public class Category : BaseEntity
     {
         protected Category()
         {
-            CreatedBy = "Admin Category";
+            //CreatedBy = "Admin Category";
         }
-        public Category(string name, string createdBy)
+        public Category(string name, ApplicationUser createdBy)
         {
             Name = name;
             CreatedBy = createdBy;
@@ -21,8 +19,8 @@ namespace Bookify.DAL.Entities
             if (!string.IsNullOrEmpty(deletedBy) && Name != name)
             {
                 Name = name;
-                UpdatedOn = DateTime.UtcNow;
-                UpdatedBy = deletedBy;
+                LastUpdatedOn = DateTime.UtcNow;
+                LastUpdatedById = deletedBy;
                 return true;
             }
             return false;
@@ -32,9 +30,7 @@ namespace Bookify.DAL.Entities
             if (!string.IsNullOrEmpty(deletedBy))
             {
                 IsDeleted = !IsDeleted;
-                DeletedBy = deletedBy;
-                DeletedOn = DateTime.UtcNow;
-                UpdatedOn = DateTime.UtcNow;
+                LastUpdatedOn = DateTime.UtcNow;
                 return true;
             }
             return false;

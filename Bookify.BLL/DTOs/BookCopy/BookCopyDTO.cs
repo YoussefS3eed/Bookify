@@ -1,6 +1,4 @@
-﻿using Bookify.BLL.DTOs.Book;
-
-namespace Bookify.BLL.DTOs.BookCopy
+﻿namespace Bookify.BLL.DTOs.BookCopy
 {
     public class BookCopyDTO
     {

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bookify.DAL.Database.Migrations
 {
-    [DbContext(typeof(LibroDbContext))]
+    [DbContext(typeof(BookifyDbContext))]
     [Migration("20260202173554_Updates-Tables")]
     partial class UpdatesTables
     {

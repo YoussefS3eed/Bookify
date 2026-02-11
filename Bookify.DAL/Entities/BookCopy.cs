@@ -1,6 +1,4 @@
-﻿using Bookify.DAL.Entities.Base;
-
-namespace Bookify.DAL.Entities
+﻿namespace Bookify.DAL.Entities
 {
     public class BookCopy : BaseEntity
     {
@@ -9,7 +7,7 @@ namespace Bookify.DAL.Entities
         {
             BookId = bookId;
         }
-        public BookCopy(int bookId, int editionNumber, bool isAvailableForRental, string createdBy)
+        public BookCopy(int bookId, int editionNumber, bool isAvailableForRental, ApplicationUser createdBy)
         {
             BookId = bookId;
             EditionNumber = editionNumber;
@@ -27,14 +25,14 @@ namespace Bookify.DAL.Entities
         {
             IsAvailableForRental = isAvailableForRental;
             EditionNumber = editionNumber;
-            UpdatedOn = DateTime.UtcNow;
-            UpdatedBy = updatedBy;
+            LastUpdatedOn = DateTime.UtcNow;
+            LastUpdatedById = updatedBy;
         }
         public void ToggleStatus(string deletedBy)
         {
             IsDeleted = !IsDeleted;
-            UpdatedOn = DateTime.UtcNow;
-            UpdatedBy = deletedBy;
+            LastUpdatedOn = DateTime.UtcNow;
+            LastUpdatedById = deletedBy;
         }
     }
 }

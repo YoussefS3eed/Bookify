@@ -1,5 +1,4 @@
 ﻿using Bookify.BLL.DTOs.BookCopy;
-using Bookify.BLL.Service.Abstraction;
 using Bookify.PL.ViewModels.BookCopy;
 
 namespace Bookify.PL.Controllers
@@ -37,7 +36,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.BookId)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<CreateBookCopyDTO>(model);
+            var dto = _mapper.Map<BookCopyCreateDTO>(model);
             var result = await _bookCopyService.CreateAsync(dto);
 
             if (result.HasErrorMessage)
@@ -65,7 +64,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.BookId)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<UpdateBookCopyDTO>(model);
+            var dto = _mapper.Map<BookCopyUpdateDTO>(model);
             var result = await _bookCopyService.UpdateAsync(dto);
 
             if (result.HasErrorMessage)
