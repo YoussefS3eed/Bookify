@@ -2,12 +2,12 @@ namespace Bookify.BLL.Service.Abstraction
 {
     public interface ICategoryService
     {
-        Task<Result<CategoryDTO>> CreateAsync(CategoryCreateDTO dto);
-        Task<Result<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto);
-        Task<Result<CategoryDTO>> ToggleStatusAsync(int categoryId);
-        Task<Result<CategoryDTO>> GetByIdAsync(int categoryId);
-        Task<Result<IEnumerable<CategoryDTO>>> GetAllAsync();
-        Task<Result<IEnumerable<CategoryDTO>>> GetAllNotActiveAsync();
+        Task<Result<CategoryDto>> CreateAsync(CategoryCreateDto dto);
+        Task<Result<CategoryDto>> UpdateAsync(CategoryUpdateDto dto);
+        Task<Result<CategoryDto>> ToggleStatusAsync(int categoryId);
+        Task<Result<CategoryDto>> GetByIdAsync(int categoryId);
+        Task<Result<IEnumerable<CategoryDto>>> GetAllAsync();
+        Task<Result<IEnumerable<CategoryDto>>> GetAllNotActiveAsync();
         Task<bool> IsAllowed(int Id, string Name);
     }
 }

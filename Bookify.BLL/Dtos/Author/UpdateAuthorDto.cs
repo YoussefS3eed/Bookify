@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.Author
+namespace Bookify.BLL.Dtos.Author
 {
-    public class UpdateAuthorDTO
+    public class UpdateAuthorDto
     {
         public int Id { get; set; }
         [MaxLength(100), Required]

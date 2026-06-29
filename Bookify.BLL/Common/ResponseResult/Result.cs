@@ -1,5 +1,3 @@
-using System;
-
 namespace Bookify.BLL.Common.ResponseResult
 {
     public class Result

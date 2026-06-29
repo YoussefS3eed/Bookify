@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.BookCopy
+namespace Bookify.BLL.Dtos.BookCopy
 {
-    public class BookCopyUpdateDTO
+    public class BookCopyUpdateDto
     {
         public int Id { get; set; }
         public bool IsAvailableForRental { get; set; }

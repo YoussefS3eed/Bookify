@@ -1,5 +1,5 @@
-using Bookify.BLL.DTOs.Role;
-using Bookify.BLL.DTOs.User;
+using Bookify.BLL.Dtos.Role;
+using Bookify.BLL.Dtos.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +19,7 @@ namespace Bookify.BLL.Service.Implementation
             _logger = logger;
         }
 
-        public async Task<Result<UserDTO>> CreateAsync(UserCreateDTO dto, string currentUserId)
+        public async Task<Result<UserDto>> CreateAsync(UserCreateDto dto, string currentUserId)
         {
             var user = new ApplicationUser
             {
@@ -41,11 +41,11 @@ namespace Bookify.BLL.Service.Implementation
             if (dto.SelectedRoles.Any())
                 await _userManager.AddToRolesAsync(user, dto.SelectedRoles);
 
-            var mapped = _mapper.Map<UserDTO>(user);
+            var mapped = _mapper.Map<UserDto>(user);
             return mapped;
         }
 
-        public async Task<Result<UserDTO>> UpdateAsync(UserUpdateDTO dto, string currentUserId)
+        public async Task<Result<UserDto>> UpdateAsync(UserUpdateDto dto, string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
@@ -72,7 +72,7 @@ namespace Bookify.BLL.Service.Implementation
                 await _userManager.AddToRolesAsync(user, dto.SelectedRoles);
             }
 
-            var mapped = _mapper.Map<UserDTO>(user);
+            var mapped = _mapper.Map<UserDto>(user);
             return mapped;
         }
 
@@ -97,7 +97,7 @@ namespace Bookify.BLL.Service.Implementation
             return user.LastUpdatedOn.ToString();
         }
 
-        public async Task<Result<UserDTO>> ResetPasswordAsync(UserResetPasswordDTO dto, string currentUserId)
+        public async Task<Result<UserDto>> ResetPasswordAsync(UserResetPasswordDto dto, string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
@@ -121,31 +121,31 @@ namespace Bookify.BLL.Service.Implementation
             user.LastUpdatedOn = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
-            var mapped = _mapper.Map<UserDTO>(user);
+            var mapped = _mapper.Map<UserDto>(user);
             return mapped;
         }
 
-        public async Task<Result<IEnumerable<UserDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<UserDto>>> GetAllAsync()
         {
             var users = await _userManager.Users.ToListAsync();
-            var mappedUsers = _mapper.Map<IEnumerable<UserDTO>>(users);
+            var mappedUsers = _mapper.Map<IEnumerable<UserDto>>(users);
             return Result.Success(mappedUsers);
         }
 
-        public async Task<Result<IEnumerable<RoleDTO>>> GetRolesAsync()
+        public async Task<Result<IEnumerable<RoleDto>>> GetRolesAsync()
         {
             var roles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
-            var dtos = roles.Select(name => new RoleDTO(name));
+            var dtos = roles.Select(name => new RoleDto(name));
             return Result.Success(dtos);
         }
 
-        public async Task<Result<UserUpdateDTO>> GetForEditAsync(string id)
+        public async Task<Result<UserUpdateDto>> GetForEditAsync(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return new Error("User.NotFound", $"User with ID '{id}' was not found.", HttpStatusCode.NotFound);
 
-            var dto = new UserUpdateDTO
+            var dto = new UserUpdateDto
             (
                 Id: user.Id,
                 FullName: user.FullName,
@@ -157,13 +157,13 @@ namespace Bookify.BLL.Service.Implementation
             return dto;
         }
 
-        public async Task<Result<UserResetPasswordDTO>> GetForResetPasswordAsync(string id)
+        public async Task<Result<UserResetPasswordDto>> GetForResetPasswordAsync(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return new Error("User.NotFound", $"User with ID '{id}' was not found.", HttpStatusCode.NotFound);
 
-            var dto = new UserResetPasswordDTO
+            var dto = new UserResetPasswordDto
             (
                 Id: user.Id,
                 Password: string.Empty

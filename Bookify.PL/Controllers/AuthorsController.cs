@@ -1,4 +1,4 @@
-using Bookify.BLL.DTOs.Author;
+using Bookify.BLL.Dtos.Author;
 using Bookify.PL.ViewModels.Author;
 
 namespace Bookify.PL.Controllers
@@ -38,7 +38,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<CreateAuthorDTO>(model);
+            var dto = _mapper.Map<CreateAuthorDto>(model);
             var result = await _authorService.CreateAsync(dto);
 
             if (result.IsFailure)
@@ -67,7 +67,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<UpdateAuthorDTO>(model);
+            var dto = _mapper.Map<UpdateAuthorDto>(model);
             var result = await _authorService.UpdateAsync(dto);
 
             if (result.IsFailure)

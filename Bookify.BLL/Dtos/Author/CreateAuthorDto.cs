@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.Category
+namespace Bookify.BLL.Dtos.Author
 {
-    public class CategoryCreateDTO
+    public class CreateAuthorDto
     {
         [MaxLength(100), Required]
         public string Name { get; set; } = null!;

@@ -1,4 +1,4 @@
-﻿using Bookify.BLL.DTOs.User;
+using Bookify.BLL.Dtos.User;
 
 namespace Bookify.BLL.Mapper
 {
@@ -8,26 +8,26 @@ namespace Bookify.BLL.Mapper
 
         {
             // Category Mappings
-            CreateMap<CategoryCreateDTO, Category>();
-            CreateMap<CategoryUpdateDTO, Category>();
-            CreateMap<Category, CategoryDTO>();
-            CreateMap<Category, SelectListItemDTO>()
+            CreateMap<CategoryCreateDto, Category>();
+            CreateMap<CategoryUpdateDto, Category>();
+            CreateMap<Category, CategoryDto>();
+            CreateMap<Category, SelectListItemDto>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
 
             // Author Mappings
-            CreateMap<CreateAuthorDTO, Author>();
-            CreateMap<UpdateAuthorDTO, Author>();
-            CreateMap<Author, AuthorDTO>();
-            CreateMap<Author, SelectListItemDTO>()
+            CreateMap<CreateAuthorDto, Author>();
+            CreateMap<UpdateAuthorDto, Author>();
+            CreateMap<Author, AuthorDto>();
+            CreateMap<Author, SelectListItemDto>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Name));
 
 
 
             // Book Mappings
-            CreateMap<BookCreateDTO, Book>()
+            CreateMap<BookCreateDto, Book>()
                 .ForMember(dest => dest.Categories, opt => opt.Ignore())
                 .AfterMap((dto, book) =>
                 {
@@ -37,9 +37,9 @@ namespace Bookify.BLL.Mapper
                     }
                 });
 
-            CreateMap<BookUpdateDTO, Book>();
+            CreateMap<BookUpdateDto, Book>();
 
-            CreateMap<Book, BookDTO>()
+            CreateMap<Book, BookDto>()
             .ForMember(dest => dest.AuthorName,
                 opt => opt.MapFrom(src => src.Author != null ? src.Author.Name : string.Empty))
             .ForMember(dest => dest.CategoryIds,
@@ -52,14 +52,14 @@ namespace Bookify.BLL.Mapper
                         .Select(c => c.Category!.Name)
                         .ToList()));
 
-            CreateMap<BookCopy, BookCopyDTO>()
+            CreateMap<BookCopy, BookCopyDto>()
                 .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title));
 
 
-            CreateMap<BookCopyUpdateDTO, BookCopy>();
+            CreateMap<BookCopyUpdateDto, BookCopy>();
 
             // Users
-            CreateMap<ApplicationUser, UserDTO>();
+            CreateMap<ApplicationUser, UserDto>();
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.Book
+namespace Bookify.BLL.Dtos.Book
 {
-    public class BookDTO
+    public class BookDto
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;
@@ -16,7 +16,7 @@
         public string Description { get; set; } = null!;
         public IEnumerable<int?> CategoryIds { get; set; } = null!;
         public IEnumerable<string?> CategoryNames { get; set; } = null!;
-        public IEnumerable<BookCopyDTO> Copies { get; set; } = null!;
+        public IEnumerable<BookCopyDto> Copies { get; set; } = null!;
         public bool IsDeleted { get; set; }
         public DateTime CreatedOn { get; set; }
     }

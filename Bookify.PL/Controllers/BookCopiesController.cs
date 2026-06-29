@@ -1,4 +1,4 @@
-using Bookify.BLL.DTOs.BookCopy;
+using Bookify.BLL.Dtos.BookCopy;
 using Bookify.PL.ViewModels.BookCopy;
 
 namespace Bookify.PL.Controllers
@@ -36,7 +36,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.BookId)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<BookCopyCreateDTO>(model);
+            var dto = _mapper.Map<BookCopyCreateDto>(model);
             var result = await _bookCopyService.CreateAsync(dto);
 
             if (result.IsFailure)
@@ -64,7 +64,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.BookId)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<BookCopyUpdateDTO>(model);
+            var dto = _mapper.Map<BookCopyUpdateDto>(model);
             var result = await _bookCopyService.UpdateAsync(dto);
 
             if (result.IsFailure)

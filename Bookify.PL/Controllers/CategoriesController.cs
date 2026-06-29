@@ -1,4 +1,4 @@
-using Bookify.BLL.DTOs.Category;
+using Bookify.BLL.Dtos.Category;
 using Bookify.PL.ViewModels.Category;
 
 namespace Bookify.PL.Controllers
@@ -39,7 +39,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<CategoryCreateDTO>(model);
+            var dto = _mapper.Map<CategoryCreateDto>(model);
             var result = await _categoryService.CreateAsync(dto);
 
             if (result.IsFailure)
@@ -68,7 +68,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.Name)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<CategoryUpdateDTO>(model);
+            var dto = _mapper.Map<CategoryUpdateDto>(model);
             var result = await _categoryService.UpdateAsync(dto);
 
             if (result.IsFailure)

@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.Author
+namespace Bookify.BLL.Dtos.Author
 {
-    public class AuthorDTO
+    public class AuthorDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

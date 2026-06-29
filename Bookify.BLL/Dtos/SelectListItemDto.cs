@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs
+namespace Bookify.BLL.Dtos
 {
-    public class SelectListItemDTO
+    public class SelectListItemDto
     {
         public int Value { get; set; }
         public string Text { get; set; } = null!;

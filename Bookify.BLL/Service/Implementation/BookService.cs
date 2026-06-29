@@ -23,32 +23,32 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Result<BookDTO>> GetByIdAsync(int bookId)
+        public async Task<Result<BookDto>> GetByIdAsync(int bookId)
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
                 return new Error("Book.NotFound", $"Book with ID {bookId} was not found.", HttpStatusCode.NotFound);
 
-            return _mapper.Map<BookDTO>(book);
+            return _mapper.Map<BookDto>(book);
         }
-        public async Task<Result<BookDTO>> GetByIdWithAuthorAndCategoriesAsync(int id)
+        public async Task<Result<BookDto>> GetByIdWithAuthorAndCategoriesAsync(int id)
         {
             var book = await _bookRepo.GetByIdWithAuthorAndCategoriesAsync(id);
             if (book == null)
                 return new Error("Book.NotFound", $"Book with ID {id} was not found.", HttpStatusCode.NotFound);
 
-            return _mapper.Map<BookDTO>(book);
+            return _mapper.Map<BookDto>(book);
         }
 
-        public async Task<Result<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id)
+        public async Task<Result<BookDto>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id)
         {
             var book = await _bookRepo.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
             if (book == null)
                 return new Error("Book.NotFound", $"Book with ID {id} was not found.", HttpStatusCode.NotFound);
-            var mapped = _mapper.Map<BookDTO>(book);
+            var mapped = _mapper.Map<BookDto>(book);
             return mapped;
         }
-        public async Task<(Result<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection)
+        public async Task<(Result<IEnumerable<BookDto>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection)
         {
             IQueryable<Book> books = _bookRepo.GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync();
             if (!string.IsNullOrEmpty(searchValue))
@@ -58,17 +58,17 @@ namespace Bookify.BLL.Service.Implementation
             books = books.OrderBy($"{sortColumn} {sortColumnDirection}");
             var data = books.Skip(skip).Take(pageSize).ToList();
 
-            var dtos = _mapper.Map<IEnumerable<BookDTO>>(data);
+            var dtos = _mapper.Map<IEnumerable<BookDto>>(data);
             return (Result.Success(dtos), totalRecords);
         }
-        public async Task<Result<IEnumerable<BookDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<BookDto>>> GetAllAsync()
         {
             var books = await _bookRepo.GetAllAsync(b => !b.IsDeleted);
-            var dtos = _mapper.Map<IEnumerable<BookDTO>>(books);
+            var dtos = _mapper.Map<IEnumerable<BookDto>>(books);
 
             return Result.Success(dtos);
         }
-        public async Task<Result<BookDTO>> CreateAsync(BookCreateDTO dto)
+        public async Task<Result<BookDto>> CreateAsync(BookCreateDto dto)
         {
             // Check for duplicate book
             var exists = await ExistsByTitleAndAuthorAsync(dto.Title, dto.AuthorId);
@@ -82,9 +82,9 @@ namespace Bookify.BLL.Service.Implementation
             if (createdBook == null)
                 return new Error("Book.CreationFailed", $"Failed to save book '{dto.Title}' in database.", HttpStatusCode.InternalServerError);
 
-            return _mapper.Map<BookDTO>(createdBook);
+            return _mapper.Map<BookDto>(createdBook);
         }
-        public async Task<Result<BookDTO>> UpdateAsync(BookUpdateDTO dto)
+        public async Task<Result<BookDto>> UpdateAsync(BookUpdateDto dto)
         {
             // Validate Author
             var author = await _authorRepository.GetByIdAsync(dto.AuthorId);
@@ -96,10 +96,10 @@ namespace Bookify.BLL.Service.Implementation
             if (updatedBook == null)
                 return new Error("Book.UpdateFailed", $"Failed to update book '{dto.Title}' in database.", HttpStatusCode.BadRequest);
 
-            var resultDto = _mapper.Map<BookDTO>(updatedBook);
+            var resultDto = _mapper.Map<BookDto>(updatedBook);
             return resultDto;
         }
-        public async Task<Result<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy)
+        public async Task<Result<BookDto>> ToggleStatusAsync(int bookId, string deletedBy)
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
@@ -109,18 +109,18 @@ namespace Bookify.BLL.Service.Implementation
             if (result == null)
                 return new Error("Book.ToggleFailed", $"Failed to toggle status for Book with ID {bookId} in database.", HttpStatusCode.BadRequest);
 
-            return _mapper.Map<BookDTO>(result);
+            return _mapper.Map<BookDto>(result);
         }
-        public async Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync()
+        public async Task<Result<IEnumerable<SelectListItemDto>>> GetActiveAuthorsForDropdownAsync()
         {
             var authors = await _authorRepository.GetAllAsync(a => !a.IsDeleted);
-            var dtos = _mapper.Map<IEnumerable<SelectListItemDTO>>(authors.OrderBy(a => a.Name));
+            var dtos = _mapper.Map<IEnumerable<SelectListItemDto>>(authors.OrderBy(a => a.Name));
             return Result.Success(dtos);
         }
-        public async Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveCategoriesForDropdownAsync()
+        public async Task<Result<IEnumerable<SelectListItemDto>>> GetActiveCategoriesForDropdownAsync()
         {
             var categories = await _categoryRepository.GetAllAsync(c => !c.IsDeleted);
-            var dtos = _mapper.Map<IEnumerable<SelectListItemDTO>>(categories.OrderBy(c => c.Name));
+            var dtos = _mapper.Map<IEnumerable<SelectListItemDto>>(categories.OrderBy(c => c.Name));
             return Result.Success(dtos);
         }
         public async Task<bool> IsAllowed(int Id, string Title, int AuthorId)

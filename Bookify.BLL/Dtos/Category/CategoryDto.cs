@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.Category
+namespace Bookify.BLL.Dtos.Category
 {
-    public class CategoryDTO
+    public class CategoryDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

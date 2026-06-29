@@ -1,9 +1,7 @@
-﻿namespace Bookify.BLL.DTOs.Book
+namespace Bookify.BLL.Dtos.Book
 {
-    public class BookUpdateDTO
+    public class BookCreateDto
     {
-        [Required]
-        public int Id { get; set; }
         [MaxLength(500), Required]
         public string Title { get; set; } = null!;
         [Required]
@@ -22,6 +20,6 @@
         public string Description { get; set; } = null!;
         public List<int?> CategoryIds { get; set; } = new();
         [Required]
-        public string UpdatedBy { get; set; } = null!;
+        public string CreatedBy { get; set; } = null!;
     }
 }

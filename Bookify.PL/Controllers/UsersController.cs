@@ -1,4 +1,4 @@
-using Bookify.BLL.DTOs.User;
+using Bookify.BLL.Dtos.User;
 using Bookify.DAL.Common.Consts;
 using Bookify.PL.ViewModels.User;
 using Microsoft.AspNetCore.Authorization;
@@ -55,7 +55,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.FullName)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<UserCreateDTO>(model);
+            var dto = _mapper.Map<UserCreateDto>(model);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.CreateAsync(dto, currentUserId);
 
@@ -93,7 +93,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.FullName)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<UserUpdateDTO>(model);
+            var dto = _mapper.Map<UserUpdateDto>(model);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.UpdateAsync(dto, currentUserId);
 
@@ -125,7 +125,7 @@ namespace Bookify.PL.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState[nameof(model.Password)]?.Errors.First().ErrorMessage);
 
-            var dto = _mapper.Map<UserResetPasswordDTO>(model);
+            var dto = _mapper.Map<UserResetPasswordDto>(model);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.ResetPasswordAsync(dto, currentUserId);
 

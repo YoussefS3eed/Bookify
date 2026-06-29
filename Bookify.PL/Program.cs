@@ -1,8 +1,8 @@
 using Bookify.BLL.Common;
 using Bookify.DAL.Common;
 using Bookify.PL.Mapper;
-using Bookify.PL.Settings;
 using Bookify.PL.Middlewares;
+using Bookify.PL.Settings;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 namespace Bookify.PL
 {

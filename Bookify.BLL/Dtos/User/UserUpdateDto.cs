@@ -1,6 +1,6 @@
-﻿namespace Bookify.BLL.DTOs.User
+namespace Bookify.BLL.Dtos.User
 {
-    public record UserUpdateDTO
+    public record UserUpdateDto
     (
         string Id,
         string FullName,

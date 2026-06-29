@@ -11,7 +11,7 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Result<BookCopyDTO>> CreateAsync(BookCopyCreateDTO dto)
+        public async Task<Result<BookCopyDto>> CreateAsync(BookCopyCreateDto dto)
         {
             if (dto == null)
                 return new Error("BookCopy.InvalidData", "Book copy creation data cannot be null.", HttpStatusCode.BadRequest);
@@ -26,9 +26,9 @@ namespace Bookify.BLL.Service.Implementation
             if (result == null)
                 return new Error("BookCopy.CreationFailed", $"Failed to create Book copy for Book '{book.Title}' (ID {dto.BookId}) in database.", HttpStatusCode.InternalServerError);
 
-            return _mapper.Map<BookCopyDTO>(result);
+            return _mapper.Map<BookCopyDto>(result);
         }
-        public async Task<Result<BookCopyDTO>> UpdateAsync(BookCopyUpdateDTO dto)
+        public async Task<Result<BookCopyDto>> UpdateAsync(BookCopyUpdateDto dto)
         {
             if (dto == null)
                 return new Error("BookCopy.InvalidData", "Book copy update data cannot be null.", HttpStatusCode.BadRequest);
@@ -43,7 +43,7 @@ namespace Bookify.BLL.Service.Implementation
             if (result == null)
                 return new Error("BookCopy.UpdateFailed", $"Failed to update Book copy with ID {dto.Id} in database.", HttpStatusCode.BadRequest);
 
-            return _mapper.Map<BookCopyDTO>(result);
+            return _mapper.Map<BookCopyDto>(result);
         }
         public async Task<Result<bool>> ToggleStatusAsync(int bookCopyId)
         {
@@ -57,15 +57,15 @@ namespace Bookify.BLL.Service.Implementation
 
             return true;
         }
-        public async Task<Result<BookCopyDTO>> GetByIdAsync(int bookCopyId)
+        public async Task<Result<BookCopyDto>> GetByIdAsync(int bookCopyId)
         {
             var bookCopy = await _bookCopyRepo.GetByIdAsync(bookCopyId);
             if (bookCopy == null)
                 return new Error("BookCopy.NotFound", $"Book copy with ID {bookCopyId} was not found.", HttpStatusCode.NotFound);
 
-            return _mapper.Map<BookCopyDTO>(bookCopy);
+            return _mapper.Map<BookCopyDto>(bookCopy);
         }
-        public async Task<Result<BookDTO?>> GetBookByIdAsync(int bookId)
+        public async Task<Result<BookDto?>> GetBookByIdAsync(int bookId)
         {
             var book = await _bookCopyRepo.GetBookByIdAsync(bookId);
             if (book == null)
@@ -73,10 +73,10 @@ namespace Bookify.BLL.Service.Implementation
                 _logger.LogWarning("Book with id {Id} not found", bookId);
                 return new Error("Book.NotFound", $"Book with ID {bookId} was not found.", HttpStatusCode.NotFound);
             }
-            return _mapper.Map<BookDTO>(book);
+            return _mapper.Map<BookDto>(book);
         }
 
-        public async Task<Result<BookCopyDTO?>> GetByIdWithBookIncludesAsync(int id)
+        public async Task<Result<BookCopyDto?>> GetByIdWithBookIncludesAsync(int id)
         {
             var bookCopy = await _bookCopyRepo.GetByIdWithBookIncludesAsync(id);
             if (bookCopy == null)
@@ -84,7 +84,7 @@ namespace Bookify.BLL.Service.Implementation
                 _logger.LogWarning("Book Copy with id {Id} not found", id);
                 return new Error("BookCopy.NotFound", $"Book copy with ID {id} was not found.", HttpStatusCode.NotFound);
             }
-            return _mapper.Map<BookCopyDTO>(bookCopy);
+            return _mapper.Map<BookCopyDto>(bookCopy);
         }
     }
 }

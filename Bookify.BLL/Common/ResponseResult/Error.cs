@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace Bookify.BLL.Common.ResponseResult
 {
     public record Error(string Code, string Message, HttpStatusCode StatusCode = HttpStatusCode.BadRequest)

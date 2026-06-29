@@ -2,10 +2,10 @@ namespace Bookify.BLL.Service.Abstraction
 {
     public interface IBookCopyService
     {
-        Task<Result<BookCopyDTO>> CreateAsync(BookCopyCreateDTO dto);
-        Task<Result<BookCopyDTO>> UpdateAsync(BookCopyUpdateDTO dto);
+        Task<Result<BookCopyDto>> CreateAsync(BookCopyCreateDto dto);
+        Task<Result<BookCopyDto>> UpdateAsync(BookCopyUpdateDto dto);
         Task<Result<bool>> ToggleStatusAsync(int bookCopyId);
-        Task<Result<BookCopyDTO?>> GetByIdWithBookIncludesAsync(int id);
-        Task<Result<BookDTO?>> GetBookByIdAsync(int bookId);
+        Task<Result<BookCopyDto?>> GetByIdWithBookIncludesAsync(int id);
+        Task<Result<BookDto?>> GetBookByIdAsync(int bookId);
     }
 }

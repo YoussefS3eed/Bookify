@@ -1,11 +1,4 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Bookify.PL.Middlewares
 {
