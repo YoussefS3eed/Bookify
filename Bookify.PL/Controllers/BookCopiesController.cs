@@ -12,6 +12,7 @@ namespace Bookify.PL.Controllers
             _bookCopyService = bookCopyService;
             _mapper = mapper;
         }
+
         [AjaxOnly]
         public async Task<IActionResult> Create(int bookId)
         {
@@ -45,6 +46,7 @@ namespace Bookify.PL.Controllers
             var viewModel = _mapper.Map<BookCopyViewModel>(result.Value);
             return PartialView("_BookCopyRow", viewModel);
         }
+
         [AjaxOnly]
         public async Task<IActionResult> Edit(int id)
         {
@@ -57,6 +59,7 @@ namespace Bookify.PL.Controllers
 
             return PartialView("Form", viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(BookCopyFormViewModel model)
@@ -73,6 +76,7 @@ namespace Bookify.PL.Controllers
             var viewModel = _mapper.Map<BookCopyViewModel>(result.Value);
             return PartialView("_BookCopyRow", viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)

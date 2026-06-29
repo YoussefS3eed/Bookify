@@ -1,10 +1,10 @@
 ﻿using Bookify.BLL.Mapper;
 
-namespace Bookify.BLL.Common
+namespace Bookify.BLL
 {
-    public static class ModularBusinessLogicLayer
+    public static class DependencyInjection
     {
-        public static IServiceCollection AddBusinessLogicLayerInPL(this IServiceCollection services)
+        public static IServiceCollection AddBusinessLogicLayer(this IServiceCollection services)
         {
             services.AddScoped<CategoryService>();
             services.AddScoped<IUniqueNameValidator, CategoryService>();

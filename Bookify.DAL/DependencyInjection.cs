@@ -1,10 +1,10 @@
 ﻿using Bookify.DAL.Repositories.Implementation;
 
-namespace Bookify.DAL.Common
+namespace Bookify.DAL
 {
-    public static class ModularDataAccessLayer
+    public static class DependencyInjection
     {
-        public static IServiceCollection AddDataAccessLayerInPL(this IServiceCollection services)
+        public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IAuthorRepo, AuthorRepo>();
