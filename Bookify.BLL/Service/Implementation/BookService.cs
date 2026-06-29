@@ -23,32 +23,32 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<BookDTO>> GetByIdAsync(int bookId)
+        public async Task<Result<BookDTO>> GetByIdAsync(int bookId)
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
-                return new(null, "Book not found.", true, HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", "Book not found.", HttpStatusCode.NotFound);
 
-            return new(_mapper.Map<BookDTO>(book), null, false);
+            return _mapper.Map<BookDTO>(book);
         }
-        public async Task<Response<BookDTO>> GetByIdWithAuthorAndCategoriesAsync(int id)
+        public async Task<Result<BookDTO>> GetByIdWithAuthorAndCategoriesAsync(int id)
         {
             var book = await _bookRepo.GetByIdWithAuthorAndCategoriesAsync(id);
             if (book == null)
-                return new(null, "Book not found", true, HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", "Book not found", HttpStatusCode.NotFound);
 
-            return new(_mapper.Map<BookDTO>(book), null, false);
+            return _mapper.Map<BookDTO>(book);
         }
 
-        public async Task<Response<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id)
+        public async Task<Result<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id)
         {
             var book = await _bookRepo.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
             if (book == null)
-                return new(null, "Book not found", true, HttpStatusCode.NotFound);
-            var maped = _mapper.Map<BookDTO>(book);
-            return new(maped, null, false);
+                return new Error("Book.NotFound", "Book not found", HttpStatusCode.NotFound);
+            var mapped = _mapper.Map<BookDTO>(book);
+            return mapped;
         }
-        public async Task<(Response<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection)
+        public async Task<(Result<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection)
         {
             IQueryable<Book> books = _bookRepo.GetBookWithAuthorAndBookCategoriesAndCategoryTableAsync();
             if (!string.IsNullOrEmpty(searchValue))
@@ -59,71 +59,71 @@ namespace Bookify.BLL.Service.Implementation
             var data = books.Skip(skip).Take(pageSize).ToList();
 
             var dtos = _mapper.Map<IEnumerable<BookDTO>>(data);
-            return (new(dtos, null, false), totalRecords);
+            return (Result.Success(dtos), totalRecords);
         }
-        public async Task<Response<IEnumerable<BookDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<BookDTO>>> GetAllAsync()
         {
             var books = await _bookRepo.GetAllAsync(b => !b.IsDeleted);
             var dtos = _mapper.Map<IEnumerable<BookDTO>>(books);
 
-            return new(dtos, null, false);
+            return Result.Success(dtos);
         }
-        public async Task<Response<BookDTO>> CreateAsync(BookCreateDTO dto)
+        public async Task<Result<BookDTO>> CreateAsync(BookCreateDTO dto)
         {
             // Check for duplicate book
             var exists = await ExistsByTitleAndAuthorAsync(dto.Title, dto.AuthorId);
             if (exists)
-                return new(null, "Book with same title and author already exists", true, HttpStatusCode.Conflict);
+                return new Error("Book.Duplicate", "Book with same title and author already exists", HttpStatusCode.Conflict);
 
             var book = _mapper.Map<Book>(dto);
 
             // Save book
             var createdBook = await _bookRepo.AddAsync(book);
             if (createdBook == null)
-                return new Response<BookDTO>(null, "Failed to create book", true, HttpStatusCode.InternalServerError);
+                return new Error("Book.CreationFailed", "Failed to create book", HttpStatusCode.InternalServerError);
 
-            return new(_mapper.Map<BookDTO>(createdBook), null, false, HttpStatusCode.Created);
+            return _mapper.Map<BookDTO>(createdBook);
         }
-        public async Task<Response<BookDTO>> UpdateAsync(BookUpdateDTO dto)
+        public async Task<Result<BookDTO>> UpdateAsync(BookUpdateDTO dto)
         {
             // TODO: Make UnitOfWork And Remake this ys4s chatgpt مراجعة موديل Book
             // Validate Author
             var author = await _authorRepository.GetByIdAsync(dto.AuthorId);
             if (author == null || author.IsDeleted)
-                return new(null, "Author not found", true, HttpStatusCode.BadRequest);
+                return new Error("Book.AuthorNotFound", "Author not found", HttpStatusCode.BadRequest);
 
             // Call Repository UpdateAsync
             var updatedBook = await _bookRepo.UpdateAsync(_mapper.Map<Book>(dto), dto.CategoryIds);
             if (updatedBook == null)
-                return new(null, "Failed to update book", true, HttpStatusCode.BadRequest);
+                return new Error("Book.UpdateFailed", "Failed to update book", HttpStatusCode.BadRequest);
 
             // 4️⃣ Map to DTO
             var resultDto = _mapper.Map<BookDTO>(updatedBook);
-            return new(resultDto, null, false);
+            return resultDto;
         }
-        public async Task<Response<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy)
+        public async Task<Result<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy)
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
-                return new(null, "Book not found.", true, HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", "Book not found.", HttpStatusCode.NotFound);
 
             var result = await _bookRepo.ToggleStatusAsync(book.Id, deletedBy);
             if (result == null)
-                return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                return new Error("Book.ToggleFailed", "Database error.", HttpStatusCode.BadRequest);
 
-            return new(_mapper.Map<BookDTO>(result), null, false);
+            return _mapper.Map<BookDTO>(result);
         }
-        public async Task<Response<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync()
+        public async Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync()
         {
             var authors = await _authorRepository.GetAllAsync(a => !a.IsDeleted);
             var dtos = _mapper.Map<IEnumerable<SelectListItemDTO>>(authors.OrderBy(a => a.Name));
-            return new(dtos, null, false);
+            return Result.Success(dtos);
         }
-        public async Task<Response<IEnumerable<SelectListItemDTO>>> GetActiveCategoriesForDropdownAsync()
+        public async Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveCategoriesForDropdownAsync()
         {
             var categories = await _categoryRepository.GetAllAsync(c => !c.IsDeleted);
             var dtos = _mapper.Map<IEnumerable<SelectListItemDTO>>(categories.OrderBy(c => c.Name));
-            return new(dtos, null, false);
+            return Result.Success(dtos);
         }
         public async Task<bool> IsAllowed(int Id, string Title, int AuthorId)
         {

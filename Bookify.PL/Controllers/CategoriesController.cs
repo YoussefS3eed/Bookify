@@ -1,4 +1,4 @@
-﻿using Bookify.BLL.DTOs.Category;
+using Bookify.BLL.DTOs.Category;
 using Bookify.PL.ViewModels.Category;
 
 namespace Bookify.PL.Controllers
@@ -18,10 +18,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Index()
         {
             var result = await _categoryService.GetAllAsync();
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var vm = _mapper.Map<IEnumerable<CategoryViewModel>>(result.Result);
+            var vm = _mapper.Map<IEnumerable<CategoryViewModel>>(result.Value);
             return View(vm);
         }
 
@@ -42,10 +42,10 @@ namespace Bookify.PL.Controllers
             var dto = _mapper.Map<CategoryCreateDTO>(model);
             var result = await _categoryService.CreateAsync(dto);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Value);
             return PartialView("_CategoryRow", rowVm);
         }
 
@@ -54,10 +54,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var result = await _categoryService.GetByIdAsync(id);
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var vm = _mapper.Map<CategoryFormViewModel>(result.Result);
+            var vm = _mapper.Map<CategoryFormViewModel>(result.Value);
             return PartialView("_Form", vm);
         }
 
@@ -71,10 +71,10 @@ namespace Bookify.PL.Controllers
             var dto = _mapper.Map<CategoryUpdateDTO>(model);
             var result = await _categoryService.UpdateAsync(dto);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Value);
             return PartialView("_CategoryRow", rowVm);
         }
 
@@ -83,10 +83,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var result = await _categoryService.ToggleStatusAsync(id);
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var rowVm = _mapper.Map<CategoryViewModel>(result.Result);
+            var rowVm = _mapper.Map<CategoryViewModel>(result.Value);
             return Ok(rowVm?.UpdatedOn?.ToString());
         }
 

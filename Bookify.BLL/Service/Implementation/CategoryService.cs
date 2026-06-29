@@ -11,71 +11,71 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<CategoryDTO>> CreateAsync(CategoryCreateDTO dto)
+        public async Task<Result<CategoryDTO>> CreateAsync(CategoryCreateDTO dto)
         {
             if (dto == null)
-                return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
+                return new Error("Category.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
 
             if (await NameExistsAsync(dto.Name))
-                return new(null, "Category name already exists.", true, HttpStatusCode.Conflict);
+                return new Error("Category.NameExists", "Category name already exists.", HttpStatusCode.Conflict);
 
             var category = _mapper.Map<Category>(dto);
             var result = await _categoryRepo.AddAsync(category);
 
             if (result == null)
-                return new(null, "Failed to create category in database.", true, HttpStatusCode.InternalServerError);
+                return new Error("Category.CreationFailed", "Failed to create category in database.", HttpStatusCode.InternalServerError);
 
-            return new(_mapper.Map<CategoryDTO>(result), null, false);
+            return _mapper.Map<CategoryDTO>(result);
         }
-        public async Task<Response<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto)
+        public async Task<Result<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto)
         {
             if (dto == null)
-                return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
+                return new Error("Category.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
 
             var existingCategory = await _categoryRepo.GetByIdAsync(dto.Id);
             if (existingCategory == null)
-                return new(null, "Category not found.", true, HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
 
             // Check if name changed and validate uniqueness
             if (existingCategory.Name != dto.Name && await NameExistsAsync(dto.Name))
-                return new(null, "Category name already exists.", true, HttpStatusCode.Conflict);
+                return new Error("Category.NameExists", "Category name already exists.", HttpStatusCode.Conflict);
 
             var category = _mapper.Map<Category>(dto);
             var result = await _categoryRepo.UpdateAsync(category);
             if (result == null)
-                return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                return new Error("Category.UpdateFailed", "Database error.", HttpStatusCode.BadRequest);
 
-            return new(_mapper.Map<CategoryDTO>(result), null, false);
+            return _mapper.Map<CategoryDTO>(result);
         }
-        public async Task<Response<CategoryDTO>> ToggleStatusAsync(int categoryId)
+        public async Task<Result<CategoryDTO>> ToggleStatusAsync(int categoryId)
         {
             var category = await _categoryRepo.GetByIdAsync(categoryId);
             if (category == null)
-                return new(null, "Category not found.", true, HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
 
             var result = await _categoryRepo.ToggleStatusAsync(category.Id);
             if (result == null)
-                return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                return new Error("Category.ToggleFailed", "Database error.", HttpStatusCode.BadRequest);
 
-            return new(_mapper.Map<CategoryDTO>(result), null, false);
+            return _mapper.Map<CategoryDTO>(result);
         }
-        public async Task<Response<CategoryDTO>> GetByIdAsync(int categoryId)
+        public async Task<Result<CategoryDTO>> GetByIdAsync(int categoryId)
         {
             var category = await _categoryRepo.GetByIdAsync(categoryId);
             if (category == null)
-                return new(null, "Category not found.", true, HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
 
-            return new(_mapper.Map<CategoryDTO>(category), null, false);
+            return _mapper.Map<CategoryDTO>(category);
         }
-        public async Task<Response<IEnumerable<CategoryDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<CategoryDTO>>> GetAllAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
-            return new(_mapper.Map<IEnumerable<CategoryDTO>>(categories), null, false);
+            return Result.Success(_mapper.Map<IEnumerable<CategoryDTO>>(categories));
         }
-        public async Task<Response<IEnumerable<CategoryDTO>>> GetAllNotActiveAsync()
+        public async Task<Result<IEnumerable<CategoryDTO>>> GetAllNotActiveAsync()
         {
             var categories = await _categoryRepo.GetAllAsync(c => c.IsDeleted);
-            return new(_mapper.Map<IEnumerable<CategoryDTO>>(categories), null, false);
+            return Result.Success(_mapper.Map<IEnumerable<CategoryDTO>>(categories));
         }
         public async Task<bool> NameExistsAsync(string name) =>
             await _categoryRepo.AnyAsync(c => c.Name == name);

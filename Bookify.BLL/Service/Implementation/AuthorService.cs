@@ -11,71 +11,71 @@ namespace Bookify.BLL.Service.Implementation
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<Response<AuthorDTO>> CreateAsync(CreateAuthorDTO dto)
+        public async Task<Result<AuthorDTO>> CreateAsync(CreateAuthorDTO dto)
         {
             if (dto == null)
-                return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
+                return new Error("Author.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
 
             if (await NameExistsAsync(dto.Name))
-                return new(null, "Author name already exists.", true, HttpStatusCode.Conflict);
+                return new Error("Author.NameExists", "Author name already exists.", HttpStatusCode.Conflict);
 
             var author = _mapper.Map<Author>(dto);
             var result = await _authorRepo.AddAsync(author);
 
             if (result == null)
-                return new(null, "Failed to create author in database.", true, HttpStatusCode.InternalServerError);
+                return new Error("Author.CreationFailed", "Failed to create author in database.", HttpStatusCode.InternalServerError);
 
-            return new(_mapper.Map<AuthorDTO>(result), null, false);
+            return _mapper.Map<AuthorDTO>(result);
         }
-        public async Task<Response<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto)
+        public async Task<Result<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto)
         {
             if (dto == null)
-                return new(null, "Invalid data.", true, HttpStatusCode.BadRequest);
+                return new Error("Author.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
 
             var existingAuthor = await _authorRepo.GetByIdAsync(dto.Id);
             if (existingAuthor == null)
-                return new(null, "Author not found.", true, HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
 
             if (existingAuthor.Name != dto.Name && await NameExistsAsync(dto.Name))
-                return new(null, "Author name already exists.", true, HttpStatusCode.Conflict);
+                return new Error("Author.NameExists", "Author name already exists.", HttpStatusCode.Conflict);
 
             var author = _mapper.Map<Author>(dto);
             var result = await _authorRepo.UpdateAsync(author);
 
             if (result == null)
-                return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                return new Error("Author.UpdateFailed", "Database error.", HttpStatusCode.BadRequest);
 
-            return new(_mapper.Map<AuthorDTO>(result), null, false);
+            return _mapper.Map<AuthorDTO>(result);
         }
-        public async Task<Response<AuthorDTO>> ToggleStatusAsync(int authorId)
+        public async Task<Result<AuthorDTO>> ToggleStatusAsync(int authorId)
         {
             var author = await _authorRepo.GetByIdAsync(authorId);
             if (author == null)
-                return new(null, "Author not found.", true, HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
 
             var result = await _authorRepo.ToggleStatusAsync(author.Id);
             if (result == null)
-                return new(null, "Database error.", true, HttpStatusCode.BadRequest);
+                return new Error("Author.ToggleStatusFailed", "Database error.", HttpStatusCode.BadRequest);
 
-            return new(_mapper.Map<AuthorDTO>(result), null, false);
+            return _mapper.Map<AuthorDTO>(result);
         }
-        public async Task<Response<AuthorDTO>> GetByIdAsync(int authorId)
+        public async Task<Result<AuthorDTO>> GetByIdAsync(int authorId)
         {
             var author = await _authorRepo.GetByIdAsync(authorId);
             if (author == null)
-                return new(null, "Author not found.", true, HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
 
-            return new(_mapper.Map<AuthorDTO>(author), null, false);
+            return _mapper.Map<AuthorDTO>(author);
         }
-        public async Task<Response<IEnumerable<AuthorDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<AuthorDTO>>> GetAllAsync()
         {
             var authors = await _authorRepo.GetAllAsync();
-            return new(_mapper.Map<IEnumerable<AuthorDTO>>(authors), null, false);
+            return Result.Success(_mapper.Map<IEnumerable<AuthorDTO>>(authors));
         }
-        public async Task<Response<IEnumerable<AuthorDTO>>> GetAllNotActiveAsync()
+        public async Task<Result<IEnumerable<AuthorDTO>>> GetAllNotActiveAsync()
         {
             var authors = await _authorRepo.GetAllAsync(a => a.IsDeleted);
-            return new(_mapper.Map<IEnumerable<AuthorDTO>>(authors), null, false);
+            return Result.Success(_mapper.Map<IEnumerable<AuthorDTO>>(authors));
         }
         public async Task<bool> NameExistsAsync(string name) =>
             await _authorRepo.AnyAsync(a => a.Name == name);

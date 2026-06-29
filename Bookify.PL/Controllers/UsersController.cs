@@ -1,4 +1,4 @@
-﻿using Bookify.BLL.DTOs.User;
+using Bookify.BLL.DTOs.User;
 using Bookify.DAL.Common.Consts;
 using Bookify.PL.ViewModels.User;
 using Microsoft.AspNetCore.Authorization;
@@ -21,10 +21,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Index()
         {
             var result = await _userService.GetAllAsync();
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var vm = _mapper.Map<IEnumerable<UserViewModel>>(result.Result);
+            var vm = _mapper.Map<IEnumerable<UserViewModel>>(result.Value);
             return View(vm);
         }
 
@@ -34,12 +34,12 @@ namespace Bookify.PL.Controllers
         {
             var roles = await _userService.GetRolesAsync();
 
-            if (roles.HasErrorMessage)
-                return StatusCode((int)roles.StatusCode, roles.ErrorMessage);
+            if (roles.IsFailure)
+                return StatusCode((int)roles.Error.StatusCode, roles.Error.Message);
 
             var viewModel = new UserFormViewModel
             {
-                Roles = roles.Result!.Select(r => new SelectListItem
+                Roles = roles.Value!.Select(r => new SelectListItem
                 {
                     Text = r.Name,
                     Value = r.Name
@@ -59,10 +59,10 @@ namespace Bookify.PL.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.CreateAsync(dto, currentUserId);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var viewModel = _mapper.Map<UserViewModel>(result.Result);
+            var viewModel = _mapper.Map<UserViewModel>(result.Value);
             return PartialView("_UserRow", viewModel);
         }
 
@@ -71,10 +71,13 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var userDto = await _userService.GetForEditAsync(id);
-            var viewModel = _mapper.Map<UserFormViewModel>(userDto.Result);
+            if (userDto.IsFailure)
+                return StatusCode((int)userDto.Error.StatusCode, userDto.Error.Message);
+
+            var viewModel = _mapper.Map<UserFormViewModel>(userDto.Value);
 
             var roles = await _userService.GetRolesAsync();
-            viewModel.Roles = roles.Result?.Select(r => new SelectListItem
+            viewModel.Roles = roles.Value?.Select(r => new SelectListItem
             {
                 Text = r.Name,
                 Value = r.Name
@@ -94,10 +97,10 @@ namespace Bookify.PL.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.UpdateAsync(dto, currentUserId);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var viewModel = _mapper.Map<UserViewModel>(result.Result);
+            var viewModel = _mapper.Map<UserViewModel>(result.Value);
             return PartialView("_UserRow", viewModel);
         }
 
@@ -107,10 +110,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> ResetPassword(string id)
         {
             var userDto = await _userService.GetForResetPasswordAsync(id);
-            if (userDto.HasErrorMessage)
-                return StatusCode((int)userDto.StatusCode, userDto.ErrorMessage);
+            if (userDto.IsFailure)
+                return StatusCode((int)userDto.Error.StatusCode, userDto.Error.Message);
 
-            var viewModel = _mapper.Map<ResetPasswordFormViewModel>(userDto.Result);
+            var viewModel = _mapper.Map<ResetPasswordFormViewModel>(userDto.Value);
             return PartialView("_ResetPasswordForm", viewModel);
         }
 
@@ -126,10 +129,10 @@ namespace Bookify.PL.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.ResetPasswordAsync(dto, currentUserId);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var viewModel = _mapper.Map<UserViewModel>(result.Result);
+            var viewModel = _mapper.Map<UserViewModel>(result.Value);
             return PartialView("_UserRow", viewModel);
         }
 
@@ -140,10 +143,10 @@ namespace Bookify.PL.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var result = await _userService.ToggleStatusAsync(id, currentUserId);
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            return Ok(result.Result);
+            return Ok(result.Value);
         }
 
         public async Task<IActionResult> AllowUserName(UserFormViewModel model)

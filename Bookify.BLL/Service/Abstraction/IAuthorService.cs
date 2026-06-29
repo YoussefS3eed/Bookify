@@ -1,13 +1,13 @@
-﻿namespace Bookify.BLL.Service.Abstraction
+namespace Bookify.BLL.Service.Abstraction
 {
     public interface IAuthorService
     {
-        Task<Response<AuthorDTO>> CreateAsync(CreateAuthorDTO dto);
-        Task<Response<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto);
-        Task<Response<AuthorDTO>> ToggleStatusAsync(int authorId);
-        Task<Response<AuthorDTO>> GetByIdAsync(int authorId);
-        Task<Response<IEnumerable<AuthorDTO>>> GetAllAsync();
-        Task<Response<IEnumerable<AuthorDTO>>> GetAllNotActiveAsync();
+        Task<Result<AuthorDTO>> CreateAsync(CreateAuthorDTO dto);
+        Task<Result<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto);
+        Task<Result<AuthorDTO>> ToggleStatusAsync(int authorId);
+        Task<Result<AuthorDTO>> GetByIdAsync(int authorId);
+        Task<Result<IEnumerable<AuthorDTO>>> GetAllAsync();
+        Task<Result<IEnumerable<AuthorDTO>>> GetAllNotActiveAsync();
         Task<bool> IsAllowed(int Id, string Name);
     }
 }

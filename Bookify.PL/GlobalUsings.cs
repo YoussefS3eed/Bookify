@@ -1,5 +1,6 @@
-﻿global using AutoMapper;
+global using AutoMapper;
 global using Bookify.BLL.Service.Abstraction;
+global using Bookify.BLL.Common.ResponseResult;
 global using Bookify.DAL.Database;
 global using Bookify.DAL.Entities;
 global using Bookify.PL.Consts;

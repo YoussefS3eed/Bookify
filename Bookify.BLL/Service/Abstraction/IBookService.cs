@@ -1,17 +1,17 @@
-﻿namespace Bookify.BLL.Service.Abstraction
+namespace Bookify.BLL.Service.Abstraction
 {
     public interface IBookService
     {
-        Task<Response<BookDTO>> GetByIdAsync(int bookId);
-        Task<Response<IEnumerable<BookDTO>>> GetAllAsync();
-        Task<Response<BookDTO>> GetByIdWithAuthorAndCategoriesAsync(int id);
-        Task<Response<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id);
-        Task<(Response<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection);
-        Task<Response<BookDTO>> CreateAsync(BookCreateDTO dto);
-        Task<Response<BookDTO>> UpdateAsync(BookUpdateDTO dto);
-        Task<Response<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy);
-        Task<Response<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync();
-        Task<Response<IEnumerable<SelectListItemDTO>>> GetActiveCategoriesForDropdownAsync();
+        Task<Result<BookDTO>> GetByIdAsync(int bookId);
+        Task<Result<IEnumerable<BookDTO>>> GetAllAsync();
+        Task<Result<BookDTO>> GetByIdWithAuthorAndCategoriesAsync(int id);
+        Task<Result<BookDTO>> GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(int id);
+        Task<(Result<IEnumerable<BookDTO>>, int TotalRecords)> GetBooks(int skip, int pageSize, string? searchValue, string? sortColumn, string? sortColumnDirection);
+        Task<Result<BookDTO>> CreateAsync(BookCreateDTO dto);
+        Task<Result<BookDTO>> UpdateAsync(BookUpdateDTO dto);
+        Task<Result<BookDTO>> ToggleStatusAsync(int bookId, string deletedBy);
+        Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveAuthorsForDropdownAsync();
+        Task<Result<IEnumerable<SelectListItemDTO>>> GetActiveCategoriesForDropdownAsync();
         Task<bool> IsAllowed(int Id, string Title, int AuthorId);
     }
 }

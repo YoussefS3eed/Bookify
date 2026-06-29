@@ -1,4 +1,4 @@
-﻿using Bookify.BLL.DTOs.Book;
+using Bookify.BLL.DTOs.Book;
 using Bookify.PL.Settings;
 using Bookify.PL.ViewModels.Book;
 using Microsoft.Extensions.Options;
@@ -45,11 +45,11 @@ namespace Bookify.PL.Controllers
 
             var (books, recordsTotal) = await _bookService.GetBooks(skip, pageSize, searchValue, sortColumn, sortColumnDirection);
 
-            if (books is null || books.Result is null)
+            if (books.IsFailure || books.Value is null)
                 return NotFound();
 
 
-            var data = _mapper.Map<IEnumerable<BookViewModel>>(books.Result);
+            var data = _mapper.Map<IEnumerable<BookViewModel>>(books.Value);
             var jsonData = new { recordsFiltered = recordsTotal, recordsTotal, data };
             return Ok(jsonData);
         }
@@ -57,10 +57,10 @@ namespace Bookify.PL.Controllers
         {
 
             var book = await _bookService.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
-            if (book is null || book.Result is null)
+            if (book.IsFailure || book.Value is null)
                 return NotFound();
 
-            var viewModel = _mapper.Map<BookViewModel>(book.Result);
+            var viewModel = _mapper.Map<BookViewModel>(book.Value);
 
             return View(viewModel);
         }
@@ -97,9 +97,9 @@ namespace Bookify.PL.Controllers
             // Call service
             var result = await _bookService.CreateAsync(CreateBookDTO);
 
-            if (result.HasErrorMessage)
+            if (result.IsFailure)
             {
-                TempData["Error"] = result.ErrorMessage;
+                TempData["Error"] = result.Error.Message;
                 return View("Form", await PopulateViewModel(model));
             }
 
@@ -111,19 +111,19 @@ namespace Bookify.PL.Controllers
             }
 
             TempData["Success"] = "Book created successfully";
-            return RedirectToAction(nameof(Details), new { id = result.Result!.Id });
+            return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
         }
 
         public async Task<IActionResult> Edit(int id)
         {
             var result = await _bookService.GetByIdWithAuthorAndCategoriesAsync(id);
-            if (result.HasErrorMessage || result.Result == null)
+            if (result.IsFailure || result.Value == null)
             {
-                TempData["Error"] = result.ErrorMessage ?? "Book not found";
+                TempData["Error"] = result.Error?.Message ?? "Book not found";
                 return RedirectToAction(nameof(Index));
             }
 
-            var viewModel = _mapper.Map<BookFormViewModel>(result.Result);
+            var viewModel = _mapper.Map<BookFormViewModel>(result.Value);
             return View("Form", await PopulateViewModel(viewModel));
         }
 
@@ -138,14 +138,14 @@ namespace Bookify.PL.Controllers
             var book = await _bookService.GetByIdAsync(model.Id);
             if (book != null)
             {
-                if (book.HasErrorMessage || book.Result == null)
+                if (book.IsFailure || book.Value == null)
                 {
-                    TempData["Error"] = book.ErrorMessage ?? "Book not found";
+                    TempData["Error"] = book.Error?.Message ?? "Book not found";
                     return RedirectToAction(nameof(Index));
                 }
             }
-            var oldImgUrl = book!.Result!.ImageUrl;
-            var oldThumbUrl = book!.Result!.ImageThumbnailUrl;
+            var oldImgUrl = book!.Value!.ImageUrl;
+            var oldThumbUrl = book!.Value!.ImageThumbnailUrl;
 
             var updateBookDto = _mapper.Map<BookUpdateDTO>(model);
 
@@ -171,9 +171,9 @@ namespace Bookify.PL.Controllers
             // Call service
             var result = await _bookService.UpdateAsync(updateBookDto);
 
-            if (result.HasErrorMessage)
+            if (result.IsFailure)
             {
-                TempData["Error"] = result.ErrorMessage;
+                TempData["Error"] = result.Error.Message;
                 var viewModel = await PopulateViewModel(model);
                 return View("Form", viewModel);
             }
@@ -181,8 +181,8 @@ namespace Bookify.PL.Controllers
             //// Save new image if uploaded
             if (model.Image != null)
             {
-                await SaveImageToDisk(model.Image, result.Result!.ImageUrl!);
-                await SaveThumbImageToDisk(model.Image, result.Result!.ImageThumbnailUrl!);
+                await SaveImageToDisk(model.Image, result.Value!.ImageUrl!);
+                await SaveThumbImageToDisk(model.Image, result.Value!.ImageThumbnailUrl!);
                 if (!string.IsNullOrEmpty(oldImgUrl))
                 {
                     DeleteOldImageFromDisk(oldImgUrl);
@@ -191,33 +191,16 @@ namespace Bookify.PL.Controllers
             }
 
             TempData["Success"] = "Book updated successfully";
-            return RedirectToAction(nameof(Details), new { id = result.Result!.Id });
+            return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> ToggleStatus(int id)
-        //{
-        //    var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
-
-        //    if (result.HasErrorMessage)
-        //    {
-        //        TempData["Error"] = result.ErrorMessage;
-        //    }
-        //    else
-        //    {
-        //        TempData["Success"] = "Book status updated successfully";
-        //    }
-
-        //    return Ok();
-        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var result = await _bookService.ToggleStatusAsync(id, User.Identity?.Name ?? "System");
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
             return Ok();
         }
@@ -233,11 +216,11 @@ namespace Bookify.PL.Controllers
             var authorsResult = await _bookService.GetActiveAuthorsForDropdownAsync();
             var categoriesResult = await _bookService.GetActiveCategoriesForDropdownAsync();
 
-            if (authorsResult.Result != null)
-                viewModel.Authors = _mapper.Map<IEnumerable<SelectListItem>>(authorsResult.Result);
+            if (authorsResult.IsSuccess && authorsResult.Value != null)
+                viewModel.Authors = _mapper.Map<IEnumerable<SelectListItem>>(authorsResult.Value);
 
-            if (categoriesResult.Result != null)
-                viewModel.Categories = _mapper.Map<IEnumerable<SelectListItem>>(categoriesResult.Result);
+            if (categoriesResult.IsSuccess && categoriesResult.Value != null)
+                viewModel.Categories = _mapper.Map<IEnumerable<SelectListItem>>(categoriesResult.Value);
 
             return viewModel;
         }
@@ -283,5 +266,3 @@ namespace Bookify.PL.Controllers
         }
     }
 }
-
-

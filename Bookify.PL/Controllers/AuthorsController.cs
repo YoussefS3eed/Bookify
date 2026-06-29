@@ -1,4 +1,4 @@
-﻿using Bookify.BLL.DTOs.Author;
+using Bookify.BLL.DTOs.Author;
 using Bookify.PL.ViewModels.Author;
 
 namespace Bookify.PL.Controllers
@@ -17,10 +17,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Index()
         {
             var result = await _authorService.GetAllAsync();
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var vm = _mapper.Map<IEnumerable<AuthorViewModel>>(result.Result);
+            var vm = _mapper.Map<IEnumerable<AuthorViewModel>>(result.Value);
             return View(vm);
         }
 
@@ -41,10 +41,10 @@ namespace Bookify.PL.Controllers
             var dto = _mapper.Map<CreateAuthorDTO>(model);
             var result = await _authorService.CreateAsync(dto);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Value);
             return PartialView("_AuthorRow", rowVm);
         }
 
@@ -53,10 +53,10 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var result = await _authorService.GetByIdAsync(id);
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var vm = _mapper.Map<AuthorFormViewModel>(result.Result);
+            var vm = _mapper.Map<AuthorFormViewModel>(result.Value);
             return PartialView("_Form", vm);
         }
 
@@ -70,10 +70,10 @@ namespace Bookify.PL.Controllers
             var dto = _mapper.Map<UpdateAuthorDTO>(model);
             var result = await _authorService.UpdateAsync(dto);
 
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
 
-            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Value);
             return PartialView("_AuthorRow", rowVm);
         }
 
@@ -82,9 +82,9 @@ namespace Bookify.PL.Controllers
         public async Task<IActionResult> ToggleStatus(int id)
         {
             var result = await _authorService.ToggleStatusAsync(id);
-            if (result.HasErrorMessage)
-                return StatusCode((int)result.StatusCode, result.ErrorMessage);
-            var rowVm = _mapper.Map<AuthorViewModel>(result.Result);
+            if (result.IsFailure)
+                return StatusCode((int)result.Error.StatusCode, result.Error.Message);
+            var rowVm = _mapper.Map<AuthorViewModel>(result.Value);
             return Ok(rowVm?.UpdatedOn?.ToString());
         }
 

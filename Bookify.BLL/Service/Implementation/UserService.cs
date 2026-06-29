@@ -19,7 +19,7 @@ namespace Bookify.BLL.Service.Implementation
             _logger = logger;
         }
 
-        public async Task<Response<UserDTO>> CreateAsync(UserCreateDTO dto, string currentUserId)
+        public async Task<Result<UserDTO>> CreateAsync(UserCreateDTO dto, string currentUserId)
         {
             var user = new ApplicationUser
             {
@@ -35,21 +35,21 @@ namespace Bookify.BLL.Service.Implementation
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
                 _logger.LogWarning("User creation failed: {Errors}", errors);
-                return new(null, $"User creation failed: {errors}", true, HttpStatusCode.BadRequest);
+                return new Error("User.CreationFailed", $"User creation failed: {errors}", HttpStatusCode.BadRequest);
             }
 
             if (dto.SelectedRoles.Any())
                 await _userManager.AddToRolesAsync(user, dto.SelectedRoles);
 
             var mapped = _mapper.Map<UserDTO>(user);
-            return new(mapped, null, false, HttpStatusCode.Created);
+            return mapped;
         }
 
-        public async Task<Response<UserDTO>> UpdateAsync(UserUpdateDTO dto, string currentUserId)
+        public async Task<Result<UserDTO>> UpdateAsync(UserUpdateDTO dto, string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
-                return new(null, "User not found", true, HttpStatusCode.NotFound);
+                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
 
             user.FullName = dto.FullName;
             user.UserName = dto.UserName;
@@ -62,7 +62,7 @@ namespace Bookify.BLL.Service.Implementation
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
                 _logger.LogWarning("User update failed: {Errors}", errors);
-                return new(null, $"User update failed: {errors}", true, HttpStatusCode.BadRequest);
+                return new Error("User.UpdateFailed", $"User update failed: {errors}", HttpStatusCode.BadRequest);
             }
             var currentRoles = await _userManager.GetRolesAsync(user);
 
@@ -73,14 +73,14 @@ namespace Bookify.BLL.Service.Implementation
             }
 
             var mapped = _mapper.Map<UserDTO>(user);
-            return new(mapped, null, false);
+            return mapped;
         }
 
-        public async Task<Response<string>> ToggleStatusAsync(string id, string currentUserId)
+        public async Task<Result<string>> ToggleStatusAsync(string id, string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new(null, "User not found", true, HttpStatusCode.NotFound);
+                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
 
             user.IsDeleted = !user.IsDeleted;
             user.LastUpdatedById = currentUserId;
@@ -91,17 +91,17 @@ namespace Bookify.BLL.Service.Implementation
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
                 _logger.LogWarning("Toggling user status failed: {Errors}", errors);
-                return new(null, $"Toggling user status failed: {errors}", true, HttpStatusCode.BadRequest);
+                return new Error("User.ToggleStatusFailed", $"Toggling user status failed: {errors}", HttpStatusCode.BadRequest);
             }
 
-            return new(user.LastUpdatedOn.ToString(), null, false);
+            return user.LastUpdatedOn.ToString();
         }
 
-        public async Task<Response<UserDTO>> ResetPasswordAsync(UserResetPasswordDTO dto, string currentUserId)
+        public async Task<Result<UserDTO>> ResetPasswordAsync(UserResetPasswordDTO dto, string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
-                return new(null, "User not found", true, HttpStatusCode.NotFound);
+                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
 
             var currentPasswordHash = user.PasswordHash;
             await _userManager.RemovePasswordAsync(user);
@@ -114,7 +114,7 @@ namespace Bookify.BLL.Service.Implementation
 
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
                 _logger.LogWarning("Password reset failed: {Errors}", errors);
-                return new(null, $"Password reset failed: {errors}", true, HttpStatusCode.BadRequest);
+                return new Error("User.ResetPasswordFailed", $"Password reset failed: {errors}", HttpStatusCode.BadRequest);
             }
 
             user.LastUpdatedById = currentUserId;
@@ -122,27 +122,28 @@ namespace Bookify.BLL.Service.Implementation
             await _userManager.UpdateAsync(user);
 
             var mapped = _mapper.Map<UserDTO>(user);
-            return new(mapped, null, false);
+            return mapped;
         }
 
-        public async Task<Response<IEnumerable<UserDTO>>> GetAllAsync()
+        public async Task<Result<IEnumerable<UserDTO>>> GetAllAsync()
         {
             var users = await _userManager.Users.ToListAsync();
             var mappedUsers = _mapper.Map<IEnumerable<UserDTO>>(users);
-            return new(mappedUsers, null, false);
+            return Result.Success(mappedUsers);
         }
 
-        public async Task<Response<IEnumerable<RoleDTO>>> GetRolesAsync()
+        public async Task<Result<IEnumerable<RoleDTO>>> GetRolesAsync()
         {
             var roles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
-            return new(roles.Select(name => new RoleDTO(name)), null, false);
+            var dtos = roles.Select(name => new RoleDTO(name));
+            return Result.Success(dtos);
         }
 
-        public async Task<Response<UserUpdateDTO>> GetForEditAsync(string id)
+        public async Task<Result<UserUpdateDTO>> GetForEditAsync(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new(null, "User not found", true, HttpStatusCode.NotFound);
+                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
 
             var dto = new UserUpdateDTO
             (
@@ -153,14 +154,14 @@ namespace Bookify.BLL.Service.Implementation
                 SelectedRoles: (await _userManager.GetRolesAsync(user)).ToList()
             );
 
-            return new(dto, null, false);
+            return dto;
         }
 
-        public async Task<Response<UserResetPasswordDTO>> GetForResetPasswordAsync(string id)
+        public async Task<Result<UserResetPasswordDTO>> GetForResetPasswordAsync(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new(null, "User not found", true, HttpStatusCode.NotFound);
+                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
 
             var dto = new UserResetPasswordDTO
             (
@@ -168,7 +169,7 @@ namespace Bookify.BLL.Service.Implementation
                 Password: string.Empty
             );
 
-            return new(dto, null, false);
+            return dto;
         }
 
         public async Task<bool> IsUserNameAvailableAsync(string userName, string? userId)
