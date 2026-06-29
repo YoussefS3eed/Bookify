@@ -27,7 +27,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
-                return new Error("Book.NotFound", "Book not found.", HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", $"Book with ID {bookId} was not found.", HttpStatusCode.NotFound);
 
             return _mapper.Map<BookDTO>(book);
         }
@@ -35,7 +35,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var book = await _bookRepo.GetByIdWithAuthorAndCategoriesAsync(id);
             if (book == null)
-                return new Error("Book.NotFound", "Book not found", HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", $"Book with ID {id} was not found.", HttpStatusCode.NotFound);
 
             return _mapper.Map<BookDTO>(book);
         }
@@ -44,7 +44,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var book = await _bookRepo.GetBookWithAuthorAndBookCopyAndBookCategoriesAndCategoryTableAsync(id);
             if (book == null)
-                return new Error("Book.NotFound", "Book not found", HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", $"Book with ID {id} was not found.", HttpStatusCode.NotFound);
             var mapped = _mapper.Map<BookDTO>(book);
             return mapped;
         }
@@ -73,31 +73,29 @@ namespace Bookify.BLL.Service.Implementation
             // Check for duplicate book
             var exists = await ExistsByTitleAndAuthorAsync(dto.Title, dto.AuthorId);
             if (exists)
-                return new Error("Book.Duplicate", "Book with same title and author already exists", HttpStatusCode.Conflict);
+                return new Error("Book.Duplicate", $"Book with title '{dto.Title}' and author ID {dto.AuthorId} already exists.", HttpStatusCode.Conflict);
 
             var book = _mapper.Map<Book>(dto);
 
             // Save book
             var createdBook = await _bookRepo.AddAsync(book);
             if (createdBook == null)
-                return new Error("Book.CreationFailed", "Failed to create book", HttpStatusCode.InternalServerError);
+                return new Error("Book.CreationFailed", $"Failed to save book '{dto.Title}' in database.", HttpStatusCode.InternalServerError);
 
             return _mapper.Map<BookDTO>(createdBook);
         }
         public async Task<Result<BookDTO>> UpdateAsync(BookUpdateDTO dto)
         {
-            // TODO: Make UnitOfWork And Remake this ys4s chatgpt مراجعة موديل Book
             // Validate Author
             var author = await _authorRepository.GetByIdAsync(dto.AuthorId);
             if (author == null || author.IsDeleted)
-                return new Error("Book.AuthorNotFound", "Author not found", HttpStatusCode.BadRequest);
+                return new Error("Book.AuthorNotFound", $"Author with ID {dto.AuthorId} was not found or is deleted.", HttpStatusCode.BadRequest);
 
             // Call Repository UpdateAsync
             var updatedBook = await _bookRepo.UpdateAsync(_mapper.Map<Book>(dto), dto.CategoryIds);
             if (updatedBook == null)
-                return new Error("Book.UpdateFailed", "Failed to update book", HttpStatusCode.BadRequest);
+                return new Error("Book.UpdateFailed", $"Failed to update book '{dto.Title}' in database.", HttpStatusCode.BadRequest);
 
-            // 4️⃣ Map to DTO
             var resultDto = _mapper.Map<BookDTO>(updatedBook);
             return resultDto;
         }
@@ -105,11 +103,11 @@ namespace Bookify.BLL.Service.Implementation
         {
             var book = await _bookRepo.GetByIdAsync(bookId);
             if (book == null)
-                return new Error("Book.NotFound", "Book not found.", HttpStatusCode.NotFound);
+                return new Error("Book.NotFound", $"Book with ID {bookId} was not found.", HttpStatusCode.NotFound);
 
             var result = await _bookRepo.ToggleStatusAsync(book.Id, deletedBy);
             if (result == null)
-                return new Error("Book.ToggleFailed", "Database error.", HttpStatusCode.BadRequest);
+                return new Error("Book.ToggleFailed", $"Failed to toggle status for Book with ID {bookId} in database.", HttpStatusCode.BadRequest);
 
             return _mapper.Map<BookDTO>(result);
         }

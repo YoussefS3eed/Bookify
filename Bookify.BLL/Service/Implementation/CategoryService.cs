@@ -14,36 +14,36 @@ namespace Bookify.BLL.Service.Implementation
         public async Task<Result<CategoryDTO>> CreateAsync(CategoryCreateDTO dto)
         {
             if (dto == null)
-                return new Error("Category.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
+                return new Error("Category.InvalidData", "Category creation data cannot be null.", HttpStatusCode.BadRequest);
 
             if (await NameExistsAsync(dto.Name))
-                return new Error("Category.NameExists", "Category name already exists.", HttpStatusCode.Conflict);
+                return new Error("Category.NameExists", $"Category with name '{dto.Name}' already exists.", HttpStatusCode.Conflict);
 
             var category = _mapper.Map<Category>(dto);
             var result = await _categoryRepo.AddAsync(category);
 
             if (result == null)
-                return new Error("Category.CreationFailed", "Failed to create category in database.", HttpStatusCode.InternalServerError);
+                return new Error("Category.CreationFailed", $"Failed to save Category '{dto.Name}' in the database.", HttpStatusCode.InternalServerError);
 
             return _mapper.Map<CategoryDTO>(result);
         }
         public async Task<Result<CategoryDTO>> UpdateAsync(CategoryUpdateDTO dto)
         {
             if (dto == null)
-                return new Error("Category.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
+                return new Error("Category.InvalidData", "Category update data cannot be null.", HttpStatusCode.BadRequest);
 
             var existingCategory = await _categoryRepo.GetByIdAsync(dto.Id);
             if (existingCategory == null)
-                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", $"Category with ID {dto.Id} was not found.", HttpStatusCode.NotFound);
 
             // Check if name changed and validate uniqueness
             if (existingCategory.Name != dto.Name && await NameExistsAsync(dto.Name))
-                return new Error("Category.NameExists", "Category name already exists.", HttpStatusCode.Conflict);
+                return new Error("Category.NameExists", $"Category with name '{dto.Name}' already exists.", HttpStatusCode.Conflict);
 
             var category = _mapper.Map<Category>(dto);
             var result = await _categoryRepo.UpdateAsync(category);
             if (result == null)
-                return new Error("Category.UpdateFailed", "Database error.", HttpStatusCode.BadRequest);
+                return new Error("Category.UpdateFailed", $"Failed to update Category '{dto.Name}' in database.", HttpStatusCode.BadRequest);
 
             return _mapper.Map<CategoryDTO>(result);
         }
@@ -51,11 +51,11 @@ namespace Bookify.BLL.Service.Implementation
         {
             var category = await _categoryRepo.GetByIdAsync(categoryId);
             if (category == null)
-                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", $"Category with ID {categoryId} was not found.", HttpStatusCode.NotFound);
 
             var result = await _categoryRepo.ToggleStatusAsync(category.Id);
             if (result == null)
-                return new Error("Category.ToggleFailed", "Database error.", HttpStatusCode.BadRequest);
+                return new Error("Category.ToggleFailed", $"Failed to toggle status for Category with ID {categoryId} in database.", HttpStatusCode.BadRequest);
 
             return _mapper.Map<CategoryDTO>(result);
         }
@@ -63,7 +63,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var category = await _categoryRepo.GetByIdAsync(categoryId);
             if (category == null)
-                return new Error("Category.NotFound", "Category not found.", HttpStatusCode.NotFound);
+                return new Error("Category.NotFound", $"Category with ID {categoryId} was not found.", HttpStatusCode.NotFound);
 
             return _mapper.Map<CategoryDTO>(category);
         }

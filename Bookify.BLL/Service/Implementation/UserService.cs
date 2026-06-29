@@ -34,7 +34,7 @@ namespace Bookify.BLL.Service.Implementation
             if (!result.Succeeded)
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                _logger.LogWarning("User creation failed: {Errors}", errors);
+                _logger.LogWarning("User creation failed for {Username}: {Errors}", dto.Username, errors);
                 return new Error("User.CreationFailed", $"User creation failed: {errors}", HttpStatusCode.BadRequest);
             }
 
@@ -49,7 +49,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
-                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
+                return new Error("User.NotFound", $"User with ID '{dto.Id}' was not found.", HttpStatusCode.NotFound);
 
             user.FullName = dto.FullName;
             user.UserName = dto.UserName;
@@ -61,7 +61,7 @@ namespace Bookify.BLL.Service.Implementation
             if (!result.Succeeded)
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                _logger.LogWarning("User update failed: {Errors}", errors);
+                _logger.LogWarning("User update failed for ID {Id}: {Errors}", dto.Id, errors);
                 return new Error("User.UpdateFailed", $"User update failed: {errors}", HttpStatusCode.BadRequest);
             }
             var currentRoles = await _userManager.GetRolesAsync(user);
@@ -80,7 +80,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
+                return new Error("User.NotFound", $"User with ID '{id}' was not found.", HttpStatusCode.NotFound);
 
             user.IsDeleted = !user.IsDeleted;
             user.LastUpdatedById = currentUserId;
@@ -90,7 +90,7 @@ namespace Bookify.BLL.Service.Implementation
             if (!result.Succeeded)
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                _logger.LogWarning("Toggling user status failed: {Errors}", errors);
+                _logger.LogWarning("Toggling user status failed for ID {Id}: {Errors}", id, errors);
                 return new Error("User.ToggleStatusFailed", $"Toggling user status failed: {errors}", HttpStatusCode.BadRequest);
             }
 
@@ -101,7 +101,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var user = await _userManager.FindByIdAsync(dto.Id);
             if (user == null)
-                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
+                return new Error("User.NotFound", $"User with ID '{dto.Id}' was not found.", HttpStatusCode.NotFound);
 
             var currentPasswordHash = user.PasswordHash;
             await _userManager.RemovePasswordAsync(user);
@@ -113,7 +113,7 @@ namespace Bookify.BLL.Service.Implementation
                 await _userManager.UpdateAsync(user);
 
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                _logger.LogWarning("Password reset failed: {Errors}", errors);
+                _logger.LogWarning("Password reset failed for ID {Id}: {Errors}", dto.Id, errors);
                 return new Error("User.ResetPasswordFailed", $"Password reset failed: {errors}", HttpStatusCode.BadRequest);
             }
 
@@ -143,7 +143,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
+                return new Error("User.NotFound", $"User with ID '{id}' was not found.", HttpStatusCode.NotFound);
 
             var dto = new UserUpdateDTO
             (
@@ -161,7 +161,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return new Error("User.NotFound", "User not found", HttpStatusCode.NotFound);
+                return new Error("User.NotFound", $"User with ID '{id}' was not found.", HttpStatusCode.NotFound);
 
             var dto = new UserResetPasswordDTO
             (

@@ -14,36 +14,36 @@ namespace Bookify.BLL.Service.Implementation
         public async Task<Result<AuthorDTO>> CreateAsync(CreateAuthorDTO dto)
         {
             if (dto == null)
-                return new Error("Author.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
+                return new Error("Author.InvalidData", "Author creation data cannot be null.", HttpStatusCode.BadRequest);
 
             if (await NameExistsAsync(dto.Name))
-                return new Error("Author.NameExists", "Author name already exists.", HttpStatusCode.Conflict);
+                return new Error("Author.NameExists", $"Author with name '{dto.Name}' already exists.", HttpStatusCode.Conflict);
 
             var author = _mapper.Map<Author>(dto);
             var result = await _authorRepo.AddAsync(author);
 
             if (result == null)
-                return new Error("Author.CreationFailed", "Failed to create author in database.", HttpStatusCode.InternalServerError);
+                return new Error("Author.CreationFailed", $"Failed to save Author '{dto.Name}' in the database.", HttpStatusCode.InternalServerError);
 
             return _mapper.Map<AuthorDTO>(result);
         }
         public async Task<Result<AuthorDTO>> UpdateAsync(UpdateAuthorDTO dto)
         {
             if (dto == null)
-                return new Error("Author.InvalidData", "Invalid data.", HttpStatusCode.BadRequest);
+                return new Error("Author.InvalidData", "Author update data cannot be null.", HttpStatusCode.BadRequest);
 
             var existingAuthor = await _authorRepo.GetByIdAsync(dto.Id);
             if (existingAuthor == null)
-                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", $"Author with ID {dto.Id} was not found.", HttpStatusCode.NotFound);
 
             if (existingAuthor.Name != dto.Name && await NameExistsAsync(dto.Name))
-                return new Error("Author.NameExists", "Author name already exists.", HttpStatusCode.Conflict);
+                return new Error("Author.NameExists", $"Author with name '{dto.Name}' already exists.", HttpStatusCode.Conflict);
 
             var author = _mapper.Map<Author>(dto);
             var result = await _authorRepo.UpdateAsync(author);
 
             if (result == null)
-                return new Error("Author.UpdateFailed", "Database error.", HttpStatusCode.BadRequest);
+                return new Error("Author.UpdateFailed", $"Failed to update Author '{dto.Name}' in database.", HttpStatusCode.BadRequest);
 
             return _mapper.Map<AuthorDTO>(result);
         }
@@ -51,11 +51,11 @@ namespace Bookify.BLL.Service.Implementation
         {
             var author = await _authorRepo.GetByIdAsync(authorId);
             if (author == null)
-                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", $"Author with ID {authorId} was not found.", HttpStatusCode.NotFound);
 
             var result = await _authorRepo.ToggleStatusAsync(author.Id);
             if (result == null)
-                return new Error("Author.ToggleStatusFailed", "Database error.", HttpStatusCode.BadRequest);
+                return new Error("Author.ToggleStatusFailed", $"Failed to toggle status for Author with ID {authorId} in database.", HttpStatusCode.BadRequest);
 
             return _mapper.Map<AuthorDTO>(result);
         }
@@ -63,7 +63,7 @@ namespace Bookify.BLL.Service.Implementation
         {
             var author = await _authorRepo.GetByIdAsync(authorId);
             if (author == null)
-                return new Error("Author.NotFound", "Author not found.", HttpStatusCode.NotFound);
+                return new Error("Author.NotFound", $"Author with ID {authorId} was not found.", HttpStatusCode.NotFound);
 
             return _mapper.Map<AuthorDTO>(author);
         }

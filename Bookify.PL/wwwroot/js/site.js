@@ -1,4 +1,4 @@
-﻿var table;
+var table;
 var datatable;
 var updatedRow;
 var exportedCols = [];
@@ -259,8 +259,8 @@ $(document).ready(function () {
                     showErrorMessage('Empty response from server.');
                 }
             },
-            error: function () {
-                showErrorMessage('Failed to load form.');
+            error: function (xhr) {
+                showErrorMessage(xhr.responseText || 'Failed to load form.');
             }
         });
 
@@ -294,8 +294,8 @@ $(document).ready(function () {
                             row.addClass('animate__animated animate__flash');
                             showSuccessMessage();
                         },
-                        error: function () {
-                            showErrorMessage('Failed to toggle status.');
+                        error: function (xhr) {
+                            showErrorMessage(xhr.responseText || 'Failed to toggle status.');
                         }
                     });
                 }
