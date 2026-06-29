@@ -2,6 +2,7 @@ using Bookify.BLL.Common;
 using Bookify.DAL.Common;
 using Bookify.PL.Mapper;
 using Bookify.PL.Settings;
+using Bookify.PL.Middlewares;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 namespace Bookify.PL
 {
@@ -31,7 +32,7 @@ namespace Bookify.PL
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
-            // ------------------- Dependecy Injection -------------------
+            // ------------------- Dependency Injection -------------------
             builder.Services.AddDataAccessLayerInPL();
             builder.Services.AddBusinessLogicLayerInPL();
             builder.Services.AddAutoMapper(x => x.AddProfile<DomainProfile>());
@@ -46,6 +47,7 @@ namespace Bookify.PL
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
             else
@@ -54,6 +56,8 @@ namespace Bookify.PL
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseHttpsRedirection();
             app.UseRouting();

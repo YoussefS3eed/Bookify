@@ -1,7 +1,6 @@
 ﻿using Bookify.BLL.DTOs.User;
 using Bookify.DAL.Common.Consts;
 using Bookify.PL.ViewModels.User;
-using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 

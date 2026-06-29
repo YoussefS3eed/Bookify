@@ -1,4 +1,4 @@
-﻿namespace Bookify.DAL.Entities.Base
+﻿namespace Bookify.DAL.Entities
 {
     public class BaseEntity
     {
